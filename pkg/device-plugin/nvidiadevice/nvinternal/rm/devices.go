@@ -33,11 +33,6 @@
 package rm
 
 import (
-	"fmt"
-	"strconv"
-	"strings"
-
-	"k8s.io/klog/v2"
 	kubeletdevicepluginv1beta1 "k8s.io/kubelet/pkg/apis/deviceplugin/v1beta1"
 )
 
@@ -73,244 +68,77 @@ type AnnotatedIDs []string
 
 // BuildDevice builds an rm.Device with the specified index and deviceInfo
 func BuildDevice(index string, d deviceInfo) (*Device, error) {
-	uuid, err := d.GetUUID()
-	if err != nil {
-		return nil, fmt.Errorf("error getting UUID device: %v", err)
-	}
-
-	paths, err := d.GetPaths()
-	if err != nil {
-		return nil, fmt.Errorf("error getting device paths: %v", err)
-	}
-
-	hasNuma, numa, err := d.GetNumaNode()
-	if err != nil {
-		return nil, fmt.Errorf("error getting device NUMA node: %v", err)
-	}
-
-	totalMemory, err := d.GetTotalMemory()
-	if err != nil {
-		klog.Warningf("Ignoring error getting device memory: %v", err)
-	}
-
-	computeCapability, err := d.GetComputeCapability()
-	if err != nil {
-		return nil, fmt.Errorf("error getting device compute capability: %w", err)
-	}
-
-	dev := Device{
-		TotalMemory:       totalMemory,
-		ComputeCapability: computeCapability,
-	}
-	dev.ID = uuid
-	dev.Index = index
-	dev.Paths = paths
-	dev.Health = kubeletdevicepluginv1beta1.Healthy
-	if hasNuma {
-		dev.Topology = &kubeletdevicepluginv1beta1.TopologyInfo{
-			Nodes: []*kubeletdevicepluginv1beta1.NUMANode{
-				{
-					ID: int64(numa),
-				},
-			},
-		}
-	}
-
-	return &dev, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 // Contains checks if Devices contains devices matching all ids.
-func (ds Devices) Contains(ids ...string) bool {
-	for _, id := range ids {
-		if _, exists := ds[id]; !exists {
-			return false
-		}
-	}
-	return true
-}
+func (ds Devices) Contains(ids ...string) bool { _ = "STUB: not implemented"; return false }
 
 // GetByID returns a reference to the device matching the specified ID (nil otherwise).
 func (ds Devices) GetByID(id string) *Device {
-	return ds[id]
-}
+	_ = "STUB: not implemented"
 
-// GetByIndex returns a reference to the device matching the specified Index (nil otherwise).
-func (ds Devices) GetByIndex(index string) *Device {
-	for _, d := range ds {
-		if d.Index == index {
-			return d
-		}
-	}
+	// GetByIndex returns a reference to the device matching the specified Index (nil otherwise).
 	return nil
 }
 
+func (ds Devices) GetByIndex(index string) *Device { _ = "STUB: not implemented"; return nil }
+
 // Subset returns the subset of devices in Devices matching the provided ids.
 // If any id in ids is not in Devices, then the subset that did match will be returned.
-func (ds Devices) Subset(ids []string) Devices {
-	res := make(Devices)
-	for _, id := range ids {
-		if ds.Contains(id) {
-			res[id] = ds[id]
-		}
-	}
-	return res
-}
+func (ds Devices) Subset(ids []string) Devices { _ = "STUB: not implemented"; return *new(Devices) }
 
 // Difference returns the set of devices contained in ds but not in ods.
-func (ds Devices) Difference(ods Devices) Devices {
-	res := make(Devices)
-	for id := range ds {
-		if !ods.Contains(id) {
-			res[id] = ds[id]
-		}
-	}
-	return res
-}
+func (ds Devices) Difference(ods Devices) Devices { _ = "STUB: not implemented"; return *new(Devices) }
 
 // GetIDs returns the ids from all devices in the Devices
-func (ds Devices) GetIDs() []string {
-	var res []string
-	for _, d := range ds {
-		res = append(res, d.ID)
-	}
-	return res
-}
+func (ds Devices) GetIDs() []string { _ = "STUB: not implemented"; return nil }
 
 // GetUUIDs returns the uuids associated with the Device in the set.
-func (ds Devices) GetUUIDs() []string {
-	var res []string
-	seen := make(map[string]bool)
-	for _, d := range ds {
-		uuid := d.GetUUID()
-		if seen[uuid] {
-			continue
-		}
-		seen[uuid] = true
-		res = append(res, uuid)
-	}
-	return res
-}
+func (ds Devices) GetUUIDs() []string { _ = "STUB: not implemented"; return nil }
 
 // GetPluginDevices returns the plugin Devices from all devices in the Devices
 func (ds Devices) GetPluginDevices(count uint) []*kubeletdevicepluginv1beta1.Device {
-	var res []*kubeletdevicepluginv1beta1.Device
-
-	if !strings.Contains(ds.GetIDs()[0], "MIG") {
-		for _, dev := range ds {
-			for i := uint(0); i < count; i++ {
-				id := fmt.Sprintf("%v-%v", dev.ID, i)
-				res = append(res, &kubeletdevicepluginv1beta1.Device{
-					ID:       id,
-					Health:   dev.Health,
-					Topology: nil,
-				})
-			}
-		}
-	} else {
-		for _, d := range ds {
-			res = append(res, &d.Device)
-		}
-
-	}
-
-	return res
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // GetIndices returns the Indices from all devices in the Devices
-func (ds Devices) GetIndices() []string {
-	var res []string
-	for _, d := range ds {
-		res = append(res, d.Index)
-	}
-	return res
-}
+func (ds Devices) GetIndices() []string { _ = "STUB: not implemented"; return nil }
 
 // GetPaths returns the Paths from all devices in the Devices
-func (ds Devices) GetPaths() []string {
-	var res []string
-	for _, d := range ds {
-		res = append(res, d.Paths...)
-	}
-	return res
-}
+func (ds Devices) GetPaths() []string { _ = "STUB: not implemented"; return nil }
 
 // AlignedAllocationSupported checks whether all devices support an aligned allocation
-func (ds Devices) AlignedAllocationSupported() bool {
-	for _, d := range ds {
-		if !d.AlignedAllocationSupported() {
-			return false
-		}
-	}
-	return true
-}
+func (ds Devices) AlignedAllocationSupported() bool { _ = "STUB: not implemented"; return false }
 
 // AlignedAllocationSupported checks whether the device supports an aligned allocation
-func (d Device) AlignedAllocationSupported() bool {
-	if d.IsMigDevice() {
-		return false
-	}
-
-	for _, p := range d.Paths {
-		if p == "/dev/dxg" {
-			return false
-		}
-	}
-
-	return true
-}
+func (d Device) AlignedAllocationSupported() bool { _ = "STUB: not implemented"; return false }
 
 // IsMigDevice returns checks whether d is a MIG device or not.
-func (d Device) IsMigDevice() bool {
-	return strings.Contains(d.Index, ":")
-}
+func (d Device) IsMigDevice() bool { _ = "STUB: not implemented"; return false }
 
 // GetUUID returns the UUID for the device from the annotated ID.
-func (d Device) GetUUID() string {
-	return AnnotatedID(d.ID).GetID()
-}
+func (d Device) GetUUID() string { _ = "STUB: not implemented"; return "" }
 
 // NewAnnotatedID creates a new AnnotatedID from an ID and a replica number.
 func NewAnnotatedID(id string, replica int) AnnotatedID {
-	return AnnotatedID(fmt.Sprintf("%s::%d", id, replica))
+	_ = "STUB: not implemented"
+	return *new(AnnotatedID)
 }
 
 // HasAnnotations checks if an AnnotatedID has any annotations or not.
-func (r AnnotatedID) HasAnnotations() bool {
-	split := strings.SplitN(string(r), "::", 2)
-	return len(split) == 2
-}
+func (r AnnotatedID) HasAnnotations() bool { _ = "STUB: not implemented"; return false }
 
 // Split splits a AnnotatedID into its ID and replica number parts.
-func (r AnnotatedID) Split() (string, int) {
-	split := strings.SplitN(string(r), "::", 2)
-	if len(split) != 2 {
-		return string(r), 0
-	}
-	replica, _ := strconv.ParseInt(split[1], 10, 0)
-	return split[0], int(replica)
-}
+func (r AnnotatedID) Split() (string, int) { _ = "STUB: not implemented"; return "", 0 }
 
 // GetID returns just the ID part of the replicated ID
-func (r AnnotatedID) GetID() string {
-	id, _ := r.Split()
-	return id
-}
+func (r AnnotatedID) GetID() string { _ = "STUB: not implemented"; return "" }
 
 // AnyHasAnnotations checks if any ID has annotations or not.
-func (rs AnnotatedIDs) AnyHasAnnotations() bool {
-	for _, r := range rs {
-		if AnnotatedID(r).HasAnnotations() {
-			return true
-		}
-	}
-	return false
-}
+func (rs AnnotatedIDs) AnyHasAnnotations() bool { _ = "STUB: not implemented"; return false }
 
 // GetIDs returns just the ID parts of the annotated IDs as a []string
-func (rs AnnotatedIDs) GetIDs() []string {
-	res := make([]string, len(rs))
-	for i, r := range rs {
-		res[i] = AnnotatedID(r).GetID()
-	}
-	return res
-}
+func (rs AnnotatedIDs) GetIDs() []string { _ = "STUB: not implemented"; return nil }

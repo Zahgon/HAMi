@@ -16,11 +16,6 @@ limitations under the License.
 
 package common
 
-import (
-	"fmt"
-	"strings"
-)
-
 const (
 	CardTypeMismatch                  = "CardTypeMismatch"
 	CardUUIDMismatch                  = "CardUuidMismatch"
@@ -40,27 +35,6 @@ const (
 	ModeNotFit                        = "ModeNotFit"
 )
 
-func GenReason(reasons map[string]int, cards int) string {
-	var reason []string
-	for r, cnt := range reasons {
-		reason = append(reason, fmt.Sprintf("%d/%d %s", cnt, cards, r))
-	}
-	return strings.Join(reason, ", ")
-}
+func GenReason(reasons map[string]int, cards int) string { _ = "STUB: not implemented"; return "" }
 
-func ParseReason(reason string) map[string]int {
-	reasons := strings.Split(reason, ", ")
-
-	reasonMap := map[string]int{}
-	for _, reason := range reasons {
-		cnt, key := 0, ""
-		_, err := fmt.Sscanf(reason, "%d/%d %s", &cnt, new(int), &key)
-		if err != nil {
-			continue
-		}
-
-		reasonMap[key] = cnt
-	}
-
-	return reasonMap
-}
+func ParseReason(reason string) map[string]int { _ = "STUB: not implemented"; return nil }

@@ -33,13 +33,6 @@
 package imex
 
 import (
-	"errors"
-	"fmt"
-	"os"
-	"path/filepath"
-
-	"k8s.io/klog/v2"
-
 	spec "github.com/NVIDIA/k8s-device-plugin/api/config/v1"
 )
 
@@ -56,27 +49,8 @@ type Channel struct {
 // GetChannels returns the set of channels for the given config.
 // If the selection of the default IMEX channel is disabled no channels are returned.
 func GetChannels(config *spec.Config, devRoot string) (Channels, error) {
-	var channels Channels
-	for _, channelID := range config.Imex.ChannelIDs {
-		id := fmt.Sprintf("%d", channelID)
-		channelName := "channel" + id
-		path := filepath.Join("/dev/nvidia-caps-imex-channels", channelName)
-		channel := Channel{
-			ID:       id,
-			Path:     path,
-			HostPath: filepath.Join(devRoot, path),
-		}
-		if exists, err := channel.exists(); !exists {
-			if config.Imex.Required {
-				return nil, errors.Join(err, fmt.Errorf("requested IMEX channel %v does not exist", channelName))
-			}
-			klog.Warningf("Ignoring requested IMEX channel %v (%v)", channelName, err)
-			continue
-		}
-		klog.Infof("Selecting IMEX channel %v", channelName)
-		channels = append(channels, &channel)
-	}
-	return channels, nil
+	_ = "STUB: not implemented"
+	return *new(Channels), nil
 }
 
 // exists checks whether the IMEX channel exists.
@@ -88,27 +62,4 @@ func GetChannels(config *spec.Config, devRoot string) (Channels, error) {
 // injected into the container through any other mechanism.
 // For the case of management containers using CDI to inject device nodes, these
 // device nodes would exist at /dev in the container instead.
-func (c Channel) exists() (bool, error) {
-	paths := []string{c.HostPath}
-	if c.HostPath != c.Path {
-		paths = append(paths, c.Path)
-	}
-	var errs error
-	for _, path := range paths {
-		info, err := os.Stat(path)
-		if os.IsNotExist(err) {
-			continue
-		}
-		if err != nil {
-			errs = errors.Join(errs, err)
-			continue
-		}
-
-		if info.Mode()&os.ModeCharDevice == 0 {
-			errs = errors.Join(errs, fmt.Errorf("%v is not a character device", path))
-			continue
-		}
-		return true, nil
-	}
-	return false, errs
-}
+func (c Channel) exists() (bool, error) { _ = "STUB: not implemented"; return false, nil }

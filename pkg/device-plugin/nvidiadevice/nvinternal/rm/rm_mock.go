@@ -136,23 +136,8 @@ type ResourceManagerMock struct {
 
 // CheckHealth calls CheckHealthFunc.
 func (mock *ResourceManagerMock) CheckHealth(stop <-chan interface{}, unhealthy chan<- *Device, disableNVML <-chan bool, ackDisableHealthChecks chan<- bool) error {
-	callInfo := struct {
-		Stop      <-chan interface{}
-		Unhealthy chan<- *Device
-	}{
-		Stop:      stop,
-		Unhealthy: unhealthy,
-	}
-	mock.lockCheckHealth.Lock()
-	mock.calls.CheckHealth = append(mock.calls.CheckHealth, callInfo)
-	mock.lockCheckHealth.Unlock()
-	if mock.CheckHealthFunc == nil {
-		var (
-			errOut error
-		)
-		return errOut
-	}
-	return mock.CheckHealthFunc(stop, unhealthy)
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // CheckHealthCalls gets all the calls that were made to CheckHealth.
@@ -163,31 +148,12 @@ func (mock *ResourceManagerMock) CheckHealthCalls() []struct {
 	Stop      <-chan interface{}
 	Unhealthy chan<- *Device
 } {
-	var calls []struct {
-		Stop      <-chan interface{}
-		Unhealthy chan<- *Device
-	}
-	mock.lockCheckHealth.RLock()
-	calls = mock.calls.CheckHealth
-	mock.lockCheckHealth.RUnlock()
-	return calls
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // Devices calls DevicesFunc.
-func (mock *ResourceManagerMock) Devices() Devices {
-	callInfo := struct {
-	}{}
-	mock.lockDevices.Lock()
-	mock.calls.Devices = append(mock.calls.Devices, callInfo)
-	mock.lockDevices.Unlock()
-	if mock.DevicesFunc == nil {
-		var (
-			devicesOut Devices
-		)
-		return devicesOut
-	}
-	return mock.DevicesFunc()
-}
+func (mock *ResourceManagerMock) Devices() Devices { _ = "STUB: not implemented"; return *new(Devices) }
 
 // DevicesCalls gets all the calls that were made to Devices.
 // Check the length with:
@@ -195,31 +161,14 @@ func (mock *ResourceManagerMock) Devices() Devices {
 //	len(mockedResourceManager.DevicesCalls())
 func (mock *ResourceManagerMock) DevicesCalls() []struct {
 } {
-	var calls []struct {
-	}
-	mock.lockDevices.RLock()
-	calls = mock.calls.Devices
-	mock.lockDevices.RUnlock()
-	return calls
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // GetDevicePaths calls GetDevicePathsFunc.
 func (mock *ResourceManagerMock) GetDevicePaths(strings []string) []string {
-	callInfo := struct {
-		Strings []string
-	}{
-		Strings: strings,
-	}
-	mock.lockGetDevicePaths.Lock()
-	mock.calls.GetDevicePaths = append(mock.calls.GetDevicePaths, callInfo)
-	mock.lockGetDevicePaths.Unlock()
-	if mock.GetDevicePathsFunc == nil {
-		var (
-			stringsOut []string
-		)
-		return stringsOut
-	}
-	return mock.GetDevicePathsFunc(strings)
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // GetDevicePathsCalls gets all the calls that were made to GetDevicePaths.
@@ -229,37 +178,14 @@ func (mock *ResourceManagerMock) GetDevicePaths(strings []string) []string {
 func (mock *ResourceManagerMock) GetDevicePathsCalls() []struct {
 	Strings []string
 } {
-	var calls []struct {
-		Strings []string
-	}
-	mock.lockGetDevicePaths.RLock()
-	calls = mock.calls.GetDevicePaths
-	mock.lockGetDevicePaths.RUnlock()
-	return calls
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // GetPreferredAllocation calls GetPreferredAllocationFunc.
 func (mock *ResourceManagerMock) GetPreferredAllocation(available []string, required []string, size int) ([]string, error) {
-	callInfo := struct {
-		Available []string
-		Required  []string
-		Size      int
-	}{
-		Available: available,
-		Required:  required,
-		Size:      size,
-	}
-	mock.lockGetPreferredAllocation.Lock()
-	mock.calls.GetPreferredAllocation = append(mock.calls.GetPreferredAllocation, callInfo)
-	mock.lockGetPreferredAllocation.Unlock()
-	if mock.GetPreferredAllocationFunc == nil {
-		var (
-			stringsOut []string
-			errOut     error
-		)
-		return stringsOut, errOut
-	}
-	return mock.GetPreferredAllocationFunc(available, required, size)
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 // GetPreferredAllocationCalls gets all the calls that were made to GetPreferredAllocation.
@@ -271,31 +197,14 @@ func (mock *ResourceManagerMock) GetPreferredAllocationCalls() []struct {
 	Required  []string
 	Size      int
 } {
-	var calls []struct {
-		Available []string
-		Required  []string
-		Size      int
-	}
-	mock.lockGetPreferredAllocation.RLock()
-	calls = mock.calls.GetPreferredAllocation
-	mock.lockGetPreferredAllocation.RUnlock()
-	return calls
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // Resource calls ResourceFunc.
 func (mock *ResourceManagerMock) Resource() spec.ResourceName {
-	callInfo := struct {
-	}{}
-	mock.lockResource.Lock()
-	mock.calls.Resource = append(mock.calls.Resource, callInfo)
-	mock.lockResource.Unlock()
-	if mock.ResourceFunc == nil {
-		var (
-			resourceNameOut spec.ResourceName
-		)
-		return resourceNameOut
-	}
-	return mock.ResourceFunc()
+	_ = "STUB: not implemented"
+	return *new(spec.ResourceName)
 }
 
 // ResourceCalls gets all the calls that were made to Resource.
@@ -304,31 +213,14 @@ func (mock *ResourceManagerMock) Resource() spec.ResourceName {
 //	len(mockedResourceManager.ResourceCalls())
 func (mock *ResourceManagerMock) ResourceCalls() []struct {
 } {
-	var calls []struct {
-	}
-	mock.lockResource.RLock()
-	calls = mock.calls.Resource
-	mock.lockResource.RUnlock()
-	return calls
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // ValidateRequest calls ValidateRequestFunc.
 func (mock *ResourceManagerMock) ValidateRequest(annotatedIDs AnnotatedIDs) error {
-	callInfo := struct {
-		AnnotatedIDs AnnotatedIDs
-	}{
-		AnnotatedIDs: annotatedIDs,
-	}
-	mock.lockValidateRequest.Lock()
-	mock.calls.ValidateRequest = append(mock.calls.ValidateRequest, callInfo)
-	mock.lockValidateRequest.Unlock()
-	if mock.ValidateRequestFunc == nil {
-		var (
-			errOut error
-		)
-		return errOut
-	}
-	return mock.ValidateRequestFunc(annotatedIDs)
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // ValidateRequestCalls gets all the calls that were made to ValidateRequest.
@@ -338,11 +230,6 @@ func (mock *ResourceManagerMock) ValidateRequest(annotatedIDs AnnotatedIDs) erro
 func (mock *ResourceManagerMock) ValidateRequestCalls() []struct {
 	AnnotatedIDs AnnotatedIDs
 } {
-	var calls []struct {
-		AnnotatedIDs AnnotatedIDs
-	}
-	mock.lockValidateRequest.RLock()
-	calls = mock.calls.ValidateRequest
-	mock.lockValidateRequest.RUnlock()
-	return calls
+	_ = "STUB: not implemented"
+	return nil
 }

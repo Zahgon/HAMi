@@ -64,20 +64,7 @@ type InterfaceMock struct {
 }
 
 // AdditionalDevices calls AdditionalDevicesFunc.
-func (mock *InterfaceMock) AdditionalDevices() []string {
-	callInfo := struct {
-	}{}
-	mock.lockAdditionalDevices.Lock()
-	mock.calls.AdditionalDevices = append(mock.calls.AdditionalDevices, callInfo)
-	mock.lockAdditionalDevices.Unlock()
-	if mock.AdditionalDevicesFunc == nil {
-		var (
-			stringsOut []string
-		)
-		return stringsOut
-	}
-	return mock.AdditionalDevicesFunc()
-}
+func (mock *InterfaceMock) AdditionalDevices() []string { _ = "STUB: not implemented"; return nil }
 
 // AdditionalDevicesCalls gets all the calls that were made to AdditionalDevices.
 // Check the length with:
@@ -85,29 +72,12 @@ func (mock *InterfaceMock) AdditionalDevices() []string {
 //	len(mockedInterface.AdditionalDevicesCalls())
 func (mock *InterfaceMock) AdditionalDevicesCalls() []struct {
 } {
-	var calls []struct {
-	}
-	mock.lockAdditionalDevices.RLock()
-	calls = mock.calls.AdditionalDevices
-	mock.lockAdditionalDevices.RUnlock()
-	return calls
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // CreateSpecFile calls CreateSpecFileFunc.
-func (mock *InterfaceMock) CreateSpecFile() error {
-	callInfo := struct {
-	}{}
-	mock.lockCreateSpecFile.Lock()
-	mock.calls.CreateSpecFile = append(mock.calls.CreateSpecFile, callInfo)
-	mock.lockCreateSpecFile.Unlock()
-	if mock.CreateSpecFileFunc == nil {
-		var (
-			errOut error
-		)
-		return errOut
-	}
-	return mock.CreateSpecFileFunc()
-}
+func (mock *InterfaceMock) CreateSpecFile() error { _ = "STUB: not implemented"; return nil }
 
 // CreateSpecFileCalls gets all the calls that were made to CreateSpecFile.
 // Check the length with:
@@ -115,33 +85,14 @@ func (mock *InterfaceMock) CreateSpecFile() error {
 //	len(mockedInterface.CreateSpecFileCalls())
 func (mock *InterfaceMock) CreateSpecFileCalls() []struct {
 } {
-	var calls []struct {
-	}
-	mock.lockCreateSpecFile.RLock()
-	calls = mock.calls.CreateSpecFile
-	mock.lockCreateSpecFile.RUnlock()
-	return calls
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // QualifiedName calls QualifiedNameFunc.
 func (mock *InterfaceMock) QualifiedName(s1 string, s2 string) string {
-	callInfo := struct {
-		S1 string
-		S2 string
-	}{
-		S1: s1,
-		S2: s2,
-	}
-	mock.lockQualifiedName.Lock()
-	mock.calls.QualifiedName = append(mock.calls.QualifiedName, callInfo)
-	mock.lockQualifiedName.Unlock()
-	if mock.QualifiedNameFunc == nil {
-		var (
-			sOut string
-		)
-		return sOut
-	}
-	return mock.QualifiedNameFunc(s1, s2)
+	_ = "STUB: not implemented"
+	return ""
 }
 
 // QualifiedNameCalls gets all the calls that were made to QualifiedName.
@@ -152,12 +103,6 @@ func (mock *InterfaceMock) QualifiedNameCalls() []struct {
 	S1 string
 	S2 string
 } {
-	var calls []struct {
-		S1 string
-		S2 string
-	}
-	mock.lockQualifiedName.RLock()
-	calls = mock.calls.QualifiedName
-	mock.lockQualifiedName.RUnlock()
-	return calls
+	_ = "STUB: not implemented"
+	return nil
 }

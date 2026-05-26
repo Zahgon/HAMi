@@ -31,8 +31,4 @@ type KunlunConfig struct {
 	ResourceVMemoryName string `yaml:"resourceVMemoryName"`
 }
 
-func ParseConfig(fs *flag.FlagSet) {
-	fs.StringVar(&KunlunResourceCount, "kunlun-name", "kunlunxin.com/xpu", "kunlunxin resource count")
-	fs.StringVar(&KunlunResourceVCount, "kunlun-vcount", "kunlunxin.com/vxpu", "kunlunxin resource vcount")
-	fs.StringVar(&KunlunResourceVMemory, "kunlun-vmemory", "kunlunxin.com/vxpu-memory", "kunlunxin resource vmemory")
-}
+func ParseConfig(fs *flag.FlagSet) { _ = "STUB: not implemented"; return }

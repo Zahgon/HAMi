@@ -18,8 +18,6 @@ package metax
 
 import (
 	"sync"
-
-	"k8s.io/klog/v2"
 )
 
 type JitteryQosCache struct {
@@ -27,49 +25,13 @@ type JitteryQosCache struct {
 	cache map[string]string
 }
 
-func NewJitteryQosCache() *JitteryQosCache {
-	return &JitteryQosCache{
-		cache: map[string]string{},
-	}
-}
+func NewJitteryQosCache() *JitteryQosCache { _ = "STUB: not implemented"; return nil }
 
-func (c *JitteryQosCache) Sync(devices []*MetaxSDeviceInfo) {
-	c.Lock()
-	defer c.Unlock()
+func (c *JitteryQosCache) Sync(devices []*MetaxSDeviceInfo) { _ = "STUB: not implemented"; return }
 
-	isSync := false
-
-	for _, dev := range devices {
-		expectedQos, ok := c.cache[dev.UUID]
-
-		if ok {
-			if expectedQos == dev.QosPolicy {
-				delete(c.cache, dev.UUID)
-				klog.Infof("%T: device[%s] qos changed to expected [%s], delete data",
-					c, dev.UUID, dev.QosPolicy)
-
-				isSync = true
-			}
-		}
-	}
-
-	if isSync {
-		klog.Infof("%T: sync done, current cache: %v", c, c.cache)
-	}
-}
-
-func (c *JitteryQosCache) Add(uuid string, expectedQos string) {
-	c.Lock()
-	defer c.Unlock()
-
-	c.cache[uuid] = expectedQos
-	klog.Infof("%T: device[%s] add to cache, expected qos [%s]", c, uuid, expectedQos)
-}
+func (c *JitteryQosCache) Add(uuid string, expectedQos string) { _ = "STUB: not implemented"; return }
 
 func (c *JitteryQosCache) Get(uuid string) (string, bool) {
-	c.Lock()
-	defer c.Unlock()
-
-	qos, ok := c.cache[uuid]
-	return qos, ok
+	_ = "STUB: not implemented"
+	return "", false
 }

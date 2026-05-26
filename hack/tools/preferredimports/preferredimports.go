@@ -21,21 +21,17 @@ limitations under the License.
 package main
 
 import (
-	"bytes"
 	"encoding/json"
 	"flag"
 	"fmt"
 	"go/ast"
 	"go/build"
-	"go/format"
-	"go/parser"
 	"go/token"
 	"log"
 	"os"
 	"path/filepath"
 	"regexp"
 	"sort"
-	"strings"
 
 	"golang.org/x/term"
 )
@@ -57,130 +53,27 @@ type analyzer struct {
 	donePaths map[string]any
 }
 
-func newAnalyzer() *analyzer {
-	ctx := build.Default
-	ctx.CgoEnabled = true
-
-	a := &analyzer{
-		fset:      token.NewFileSet(),
-		ctx:       ctx,
-		donePaths: make(map[string]any),
-	}
-
-	return a
-}
+func newAnalyzer() *analyzer { _ = "STUB: not implemented"; return nil }
 
 // collect extracts test metadata from a file.
-func (a *analyzer) collect(dir string) {
-	if _, ok := a.donePaths[dir]; ok {
-		return
-	}
-	a.donePaths[dir] = nil
+func (a *analyzer) collect(dir string) { _ = "STUB: not implemented"; return }
 
-	entries, err := os.ReadDir(dir)
-	if err != nil {
-		fmt.Fprintln(os.Stderr, "ERROR(readdir)", logPrefix, err)
-		a.failed = true
-		return
-	}
+// Just collect all the parsed files in a slice, no need for ast.Package
 
-	// Just collect all the parsed files in a slice, no need for ast.Package
-	var files []*ast.File
-	for _, entry := range entries {
-		if entry.IsDir() || !strings.HasSuffix(entry.Name(), ".go") {
-			continue
-		}
-		filePath := filepath.Join(dir, entry.Name())
-		f, parseErr := parser.ParseFile(a.fset, filePath, nil, parser.AllErrors|parser.ParseComments)
-		if parseErr != nil {
-			fmt.Fprintln(os.Stderr, "ERROR(parse)", logPrefix, parseErr)
-			a.failed = true
-		}
-		if f != nil {
-			files = append(files, f)
-		}
-	}
-
-	// Iterate directly over the files
-	for _, file := range files {
-		replacements := make(map[string]string)
-		pathToFile := a.fset.File(file.Pos()).Name()
-		for _, imp := range file.Imports {
-			importPath := strings.ReplaceAll(imp.Path.Value, "\"", "")
-			pathSegments := strings.Split(importPath, "/")
-			importName := pathSegments[len(pathSegments)-1]
-			if imp.Name != nil {
-				importName = imp.Name.Name
-			}
-			if alias, ok := aliases[importPath]; ok {
-				if alias != importName {
-					if !*confirm {
-						fmt.Fprintf(os.Stderr, "%sERROR wrong alias for import \"%s\" should be %s in file %s\n", logPrefix, importPath, alias, pathToFile)
-						a.failed = true
-					}
-					replacements[importName] = alias
-					if imp.Name != nil {
-						imp.Name.Name = alias
-					} else {
-						imp.Name = ast.NewIdent(alias)
-					}
-				}
-			}
-		}
-
-		if len(replacements) > 0 {
-			if *confirm {
-				fmt.Printf("%sReplacing imports with aliases in file %s\n", logPrefix, pathToFile)
-				for key, value := range replacements {
-					renameImportUsages(file, key, value)
-				}
-				ast.SortImports(a.fset, file)
-				var buffer bytes.Buffer
-				if err = format.Node(&buffer, a.fset, file); err != nil {
-					panic(fmt.Sprintf("Error formatting ast node after rewriting import.\n%s\n", err.Error()))
-				}
-
-				fileInfo, err := os.Stat(pathToFile)
-				if err != nil {
-					panic(fmt.Sprintf("Error stat'ing file: %s\n%s\n", pathToFile, err.Error()))
-				}
-
-				err = os.WriteFile(pathToFile, buffer.Bytes(), fileInfo.Mode())
-				if err != nil {
-					panic(fmt.Sprintf("Error writing file: %s\n%s\n", pathToFile, err.Error()))
-				}
-			}
-		}
-	}
-}
+// Iterate directly over the files
 
 func renameImportUsages(f *ast.File, old, new string) {
+	_ = "STUB: not implemented"
 	// use this to avoid renaming the package declaration, eg:
-	//   given: package foo; import foo "bar"; foo.Baz, rename foo->qux
-	//   yield: package foo; import qux "bar"; qux.Baz
-	var pkg *ast.Ident
-
-	// Rename top-level old to new, both unresolved names
-	// (probably defined in another file) and names that resolve
-	// to a declaration we renamed.
-	ast.Inspect(f, func(node ast.Node) bool {
-		if node == nil {
-			return false
-		}
-		switch id := node.(type) {
-		case *ast.File:
-			pkg = id.Name
-		case *ast.Ident:
-			if pkg != nil && id == pkg {
-				return false
-			}
-			if id.Name == old {
-				id.Name = new
-			}
-		}
-		return true
-	})
+	//
+	//	given: package foo; import foo "bar"; foo.Baz, rename foo->qux
+	//	yield: package foo; import qux "bar"; qux.Baz
+	return
 }
+
+// Rename top-level old to new, both unresolved names
+// (probably defined in another file) and names that resolve
+// to a declaration we renamed.
 
 type collector struct {
 	dirs             []string
@@ -192,34 +85,24 @@ type collector struct {
 // ignoring some unneeded directories (hidden/vendored) that are handled
 // specially later.
 func (c *collector) handlePath(path string, info os.FileInfo, err error) error {
-	if err != nil {
-		return err
-	}
-	if info.IsDir() {
-		// Ignore hidden directories (.git, .cache, etc)
-		if len(path) > 1 && path[0] == '.' ||
-			// Staging code is symlinked from vendor/k8s.io, and uses import
-			// paths as if it were inside of vendor/. It fails typechecking
-			// inside of staging/, but works when typechecked as part of vendor/.
-			path == "staging" ||
-			// OS-specific vendor code tends to be imported by OS-specific
-			// packages. We recursively typecheck imported vendored packages for
-			// each OS, but don't typecheck everything for every OS.
-			path == "vendor" ||
-			path == "_output" ||
-			// This is a weird one. /testdata/ is *mostly* ignored by Go,
-			// and this translates to kubernetes/vendor not working.
-			// edit/record.go doesn't compile without gopkg.in/yaml.v2
-			// in $GOSRC/$GOROOT (both typecheck and the shell script).
-			path == "pkg/kubectl/cmd/testdata/edit" {
-			return filepath.SkipDir
-		}
-		if c.includePathRegex.MatchString(path) && !c.excludePathRegex.MatchString(path) {
-			c.dirs = append(c.dirs, path)
-		}
-	}
+	_ = "STUB: not implemented"
 	return nil
 }
+
+// Ignore hidden directories (.git, .cache, etc)
+
+// Staging code is symlinked from vendor/k8s.io, and uses import
+// paths as if it were inside of vendor/. It fails typechecking
+// inside of staging/, but works when typechecked as part of vendor/.
+
+// OS-specific vendor code tends to be imported by OS-specific
+// packages. We recursively typecheck imported vendored packages for
+// each OS, but don't typecheck everything for every OS.
+
+// This is a weird one. /testdata/ is *mostly* ignored by Go,
+// and this translates to kubernetes/vendor not working.
+// edit/record.go doesn't compile without gopkg.in/yaml.v2
+// in $GOSRC/$GOROOT (both typecheck and the shell script).
 
 func main() {
 	flag.Parse()

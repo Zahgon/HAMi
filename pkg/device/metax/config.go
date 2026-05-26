@@ -30,12 +30,9 @@ type MetaxConfig struct {
 }
 
 func ParseConfig(fs *flag.FlagSet) {
+	_ = "STUB: not implemented"
 	// GPU
-	fs.StringVar(&MetaxResourceCount, "metax-name", "metax-tech.com/gpu", "metax resource count")
-
-	// SGPU
-	fs.StringVar(&MetaxResourceNameVCount, "metax-vcount", "metax-tech.com/sgpu", "metax vcount name")
-	fs.StringVar(&MetaxResourceNameVCore, "metax-vcore", "metax-tech.com/vcore", "metax vcore name")
-	fs.StringVar(&MetaxResourceNameVMemory, "metax-vmemory", "metax-tech.com/vmemory", "metax vmemory name")
-	fs.BoolVar(&MetaxTopologyAware, "sgpu-topology-aware", false, "sGPU topology aware enable")
+	return
 }
+
+// SGPU

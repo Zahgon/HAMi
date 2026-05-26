@@ -17,13 +17,10 @@ limitations under the License.
 package device
 
 import (
-	"maps"
 	"sync"
 
 	corev1 "k8s.io/api/core/v1"
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	k8stypes "k8s.io/apimachinery/pkg/types"
-	"k8s.io/klog/v2"
 )
 
 type PodInfo struct {
@@ -44,202 +41,57 @@ type PodManager struct {
 	mutex sync.RWMutex
 }
 
-func NewPodManager() *PodManager {
-	pm := &PodManager{
-		pods: make(map[k8stypes.UID]*PodInfo),
-	}
-	klog.InfoS("Pod manager initialized", "podCount", len(pm.pods))
-	return pm
-}
+func NewPodManager() *PodManager { _ = "STUB: not implemented"; return nil }
 
 func (m *PodManager) AddPod(pod *corev1.Pod, nodeID string, devices PodDevices) bool {
-	m.mutex.Lock()
-	defer m.mutex.Unlock()
-
-	_, exists := m.pods[pod.UID]
-	if !exists {
-		pi := &PodInfo{
-			Pod:     pod,
-			NodeID:  nodeID,
-			Devices: devices,
-		}
-		m.pods[pod.UID] = pi
-		klog.InfoS("Pod added",
-			"pod", klog.KRef(pod.Namespace, pod.Name),
-			"nodeID", nodeID,
-			"devices", devices,
-		)
-	} else {
-		m.pods[pod.UID].Devices = devices
-		klog.V(5).InfoS("Pod devices updated",
-			"pod", klog.KRef(pod.Namespace, pod.Name),
-			"devices", devices,
-		)
-	}
-
-	return !exists
+	_ = "STUB: not implemented"
+	return false
 }
 
-func (m *PodManager) UpdatePod(pod *corev1.Pod) {
-	m.mutex.Lock()
-	defer m.mutex.Unlock()
+func (m *PodManager) UpdatePod(pod *corev1.Pod) { _ = "STUB: not implemented"; return }
 
-	if pi, exists := m.pods[pod.UID]; exists {
-		pi.Pod = pod
-		klog.V(5).InfoS("Pod object updated in cache (terminating state)",
-			"pod", klog.KRef(pod.Namespace, pod.Name),
-			"deletionTimestamp", pod.DeletionTimestamp,
-		)
-	}
-}
-
-func (m *PodManager) DelPod(pod *corev1.Pod) {
-	m.mutex.Lock()
-	defer m.mutex.Unlock()
-
-	pi, exists := m.pods[pod.UID]
-	if exists {
-		klog.InfoS("Pod deleted",
-			"pod", klog.KRef(pod.Namespace, pod.Name),
-			"nodeID", pi.NodeID,
-		)
-		delete(m.pods, pod.UID)
-	} else {
-		klog.InfoS("Pod not found for deletion",
-			"pod", klog.KRef(pod.Namespace, pod.Name),
-		)
-	}
-}
+func (m *PodManager) DelPod(pod *corev1.Pod) { _ = "STUB: not implemented"; return }
 
 func (m *PodManager) GetPod(pod *corev1.Pod) (*PodInfo, bool) {
-	m.mutex.Lock()
-	defer m.mutex.Unlock()
-
-	pi, ok := m.pods[pod.UID]
-	return pi, ok
+	_ = "STUB: not implemented"
+	return nil, false
 }
 
 func (m *PodManager) TakeAndDeletePod(pod *corev1.Pod) (*PodInfo, bool) {
-	m.mutex.Lock()
-	defer m.mutex.Unlock()
-
-	pi, ok := m.pods[pod.UID]
-	if ok {
-		delete(m.pods, pod.UID)
-		klog.InfoS("Pod taken and deleted", "pod", klog.KRef(pod.Namespace, pod.Name), "nodeID", pi.NodeID)
-	}
-	return pi, ok
+	_ = "STUB: not implemented"
+	return nil, false
 }
 
 func (m *PodManager) ListPodsUID() ([]*corev1.Pod, error) {
-	m.mutex.RLock()
-	defer m.mutex.RUnlock()
-
-	pods := make([]*corev1.Pod, 0, len(m.pods))
-	for uid := range m.pods {
-		pods = append(pods, &corev1.Pod{
-			ObjectMeta: metav1.ObjectMeta{
-				UID: uid,
-			},
-		})
-	}
-	klog.InfoS("Listed pod UIDs",
-		"podCount", len(pods),
-	)
-	return pods, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
-func (m *PodManager) ListPodsInfo() []*PodInfo {
-	m.mutex.RLock()
-	defer m.mutex.RUnlock()
+func (m *PodManager) ListPodsInfo() []*PodInfo { _ = "STUB: not implemented"; return nil }
 
-	pods := make([]*PodInfo, 0, len(m.pods))
-	for _, pod := range m.pods {
-		pods = append(pods, pod)
-		klog.V(5).InfoS("Pod info",
-			"pod", klog.KRef(pod.Namespace, pod.Name),
-			"nodeID", pod.NodeID,
-			"devices", pod.Devices,
-		)
-	}
-	klog.V(5).InfoS("Listed pod infos",
-		"podCount", len(pods),
-	)
-	return pods
-}
+func (p *PodInfo) DeepCopy() *PodInfo { _ = "STUB: not implemented"; return nil }
 
-func (p *PodInfo) DeepCopy() *PodInfo {
-	if p == nil {
-		return nil
-	}
-	return &PodInfo{
-		Pod:     p.Pod.DeepCopy(),
-		NodeID:  p.NodeID,
-		Devices: p.Devices.DeepCopy(),
-		CtrIDs:  append([]string(nil), p.CtrIDs...),
-	}
-}
-
-func (pd PodDevices) DeepCopy() PodDevices {
-	if pd == nil {
-		return nil
-	}
-	dup := make(PodDevices, len(pd))
-	for k, v := range pd {
-		dup[k] = v.DeepCopy()
-	}
-	return dup
-}
+func (pd PodDevices) DeepCopy() PodDevices { _ = "STUB: not implemented"; return *new(PodDevices) }
 
 func (psd PodSingleDevice) DeepCopy() PodSingleDevice {
-	if psd == nil {
-		return nil
-	}
-	dup := make(PodSingleDevice, len(psd))
-	for i, cd := range psd {
-		dup[i] = cd.DeepCopy()
-	}
-	return dup
+	_ = "STUB: not implemented"
+	return *new(PodSingleDevice)
 }
 
 func (cd ContainerDevices) DeepCopy() ContainerDevices {
-	if cd == nil {
-		return nil
-	}
-	dup := make(ContainerDevices, len(cd))
-	for i, c := range cd {
-		dup[i] = c.DeepCopy()
-	}
-	return dup
+	_ = "STUB: not implemented"
+	return *new(ContainerDevices)
 }
 
 func (c ContainerDevice) DeepCopy() ContainerDevice {
-	dup := ContainerDevice{
-		Idx:       c.Idx,
-		UUID:      c.UUID,
-		Type:      c.Type,
-		Usedmem:   c.Usedmem,
-		Usedcores: c.Usedcores,
-	}
-	if c.CustomInfo != nil {
-		dup.CustomInfo = make(map[string]any, len(c.CustomInfo))
-		maps.Copy(dup.CustomInfo, c.CustomInfo)
-	}
-	return dup
+	_ = "STUB: not implemented"
+	return *new(ContainerDevice)
 }
 
 func (m *PodManager) GetScheduledPods() (map[k8stypes.UID]*PodInfo, error) {
-	m.mutex.RLock()
-	defer m.mutex.RUnlock()
-
-	podCount := len(m.pods)
-	klog.InfoS("Retrieved scheduled pods",
-		"podCount", podCount,
-	)
-
-	// Return a shallow copy of the pods map to avoid race conditions.
-	// This prevents a "concurrent map iteration and map write" fatal error.
-	podsCopy := make(map[k8stypes.UID]*PodInfo, podCount)
-	maps.Copy(podsCopy, m.pods)
-	return podsCopy, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
+
+// Return a shallow copy of the pods map to avoid race conditions.
+// This prevents a "concurrent map iteration and map write" fatal error.

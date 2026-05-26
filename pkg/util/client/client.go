@@ -17,15 +17,10 @@ limitations under the License.
 package client
 
 import (
-	"fmt"
-	"os"
-	"path/filepath"
 	"sync"
 
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/rest"
-	"k8s.io/client-go/tools/clientcmd"
-	"k8s.io/klog/v2"
 )
 
 type Client struct {
@@ -45,57 +40,20 @@ func init() {
 
 // GetClient returns the global Kubernetes client.
 func GetClient() kubernetes.Interface {
-	return KubeClient
+	_ = "STUB: not implemented"
+
+	// NewClient creates a new Kubernetes client with the given options.
+	return *new(kubernetes.Interface)
 }
 
-// NewClient creates a new Kubernetes client with the given options.
-func NewClient(opts ...Option) (*Client, error) {
-	restConfig, err := loadKubeConfig()
-	if err != nil {
-		return nil, fmt.Errorf("failed to load kubeconfig: %w", err)
-	}
+func NewClient(opts ...Option) (*Client, error) { _ = "STUB: not implemented"; return nil, nil }
 
-	// Apply WithDefaults option first to set default values.
-	WithDefaults()(restConfig)
+// Apply WithDefaults option first to set default values.
 
-	// Then apply user-provided options that will override defaults if specified.
-	for _, opt := range opts {
-		opt(restConfig)
-	}
-
-	clientset, err := kubernetes.NewForConfig(restConfig)
-	if err != nil {
-		return nil, fmt.Errorf("failed to create kubernetes client: %w", err)
-	}
-
-	return &Client{
-		Interface: clientset,
-		config:    restConfig,
-	}, nil
-}
+// Then apply user-provided options that will override defaults if specified.
 
 // InitGlobalClient initializes the global Kubernetes client with the given options.
-func InitGlobalClient(opts ...Option) {
-	once.Do(func() {
-		client, err := NewClient(opts...)
-		if err != nil {
-			klog.Fatalf("Failed to initialize global client: %v", err)
-		}
-		KubeClient = client.Interface
-	})
-}
+func InitGlobalClient(opts ...Option) { _ = "STUB: not implemented"; return }
 
 // loadKubeConfig loads Kubernetes configuration from the environment or in-cluster.
-func loadKubeConfig() (*rest.Config, error) {
-	kubeConfigPath := os.Getenv("KUBECONFIG")
-	if kubeConfigPath == "" {
-		kubeConfigPath = filepath.Join(os.Getenv("HOME"), ".kube", "config")
-	}
-
-	config, err := clientcmd.BuildConfigFromFlags("", kubeConfigPath)
-	if err != nil {
-		klog.Infof("BuildConfigFromFlags failed for file %s: %v. Using in-cluster config.", kubeConfigPath, err)
-		return rest.InClusterConfig()
-	}
-	return config, nil
-}
+func loadKubeConfig() (*rest.Config, error) { _ = "STUB: not implemented"; return nil, nil }

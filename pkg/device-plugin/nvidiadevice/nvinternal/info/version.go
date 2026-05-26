@@ -32,8 +32,6 @@
 
 package info
 
-import "strings"
-
 // version must be set by go build's -X main.version= option in the Makefile.
 var version = "unknown"
 
@@ -42,23 +40,10 @@ var version = "unknown"
 var gitCommit = ""
 
 // GetVersionParts returns the different version components
-func GetVersionParts() []string {
-	v := []string{version}
-
-	if gitCommit != "" {
-		v = append(v, "commit: "+gitCommit)
-	}
-
-	return v
-}
+func GetVersionParts() []string { _ = "STUB: not implemented"; return nil }
 
 // GetVersionString returns the string representation of the version
-func GetVersionString(more ...string) string {
-	v := append(GetVersionParts(), more...)
-	return strings.Join(v, "\n")
-}
+func GetVersionString(more ...string) string { _ = "STUB: not implemented"; return "" }
 
 // GetVersion returns the version of the binary.
-func GetVersion() string {
-	return version
-}
+func GetVersion() string { _ = "STUB: not implemented"; return "" }

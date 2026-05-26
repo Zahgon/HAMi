@@ -17,30 +17,18 @@ limitations under the License.
 package main
 
 import (
-	"encoding/json"
 	"flag"
 	"fmt"
 	"os"
-	"path/filepath"
-	"syscall"
-	"time"
 
-	"github.com/NVIDIA/go-nvlib/pkg/nvlib/device"
 	nvinfo "github.com/NVIDIA/go-nvlib/pkg/nvlib/info"
-	"github.com/NVIDIA/go-nvml/pkg/nvml"
 	spec "github.com/NVIDIA/k8s-device-plugin/api/config/v1"
-	"github.com/fsnotify/fsnotify"
 	cli "github.com/urfave/cli/v2"
-	errorsutil "k8s.io/apimachinery/pkg/util/errors"
 	"k8s.io/klog/v2"
 	kubeletdevicepluginv1beta1 "k8s.io/kubelet/pkg/apis/deviceplugin/v1beta1"
 
 	"github.com/Project-HAMi/HAMi/pkg/device-plugin/nvidiadevice/nvinternal/info"
 	"github.com/Project-HAMi/HAMi/pkg/device-plugin/nvidiadevice/nvinternal/plugin"
-	"github.com/Project-HAMi/HAMi/pkg/device-plugin/nvidiadevice/nvinternal/rm"
-	"github.com/Project-HAMi/HAMi/pkg/device-plugin/nvidiadevice/nvinternal/watch"
-	"github.com/Project-HAMi/HAMi/pkg/util"
-	"github.com/Project-HAMi/HAMi/pkg/util/client"
 	flagutil "github.com/Project-HAMi/HAMi/pkg/util/flag"
 )
 
@@ -204,269 +192,70 @@ func main() {
 }
 
 func validateFlags(infolib nvinfo.Interface, config *spec.Config) error {
-	deviceListStrategies, err := spec.NewDeviceListStrategies(*config.Flags.Plugin.DeviceListStrategy)
-	if err != nil {
-		return fmt.Errorf("invalid --device-list-strategy option: %v", err)
-	}
-
-	hasNvml, _ := infolib.HasNvml()
-	if deviceListStrategies.AnyCDIEnabled() && !hasNvml {
-		return fmt.Errorf("CDI --device-list-strategy options are only supported on NVML-based systems")
-	}
-
-	if *config.Flags.Plugin.DeviceIDStrategy != spec.DeviceIDStrategyUUID && *config.Flags.Plugin.DeviceIDStrategy != spec.DeviceIDStrategyIndex {
-		return fmt.Errorf("invalid --device-id-strategy option: %v", *config.Flags.Plugin.DeviceIDStrategy)
-	}
-
-	if config.Sharing.SharingStrategy() == spec.SharingStrategyMPS {
-		if *config.Flags.MigStrategy == spec.MigStrategyMixed {
-			return fmt.Errorf("using --mig-strategy=mixed is not supported with MPS")
-		}
-		if config.Flags.MpsRoot == nil || *config.Flags.MpsRoot == "" {
-			return fmt.Errorf("using MPS requires --mps-root to be specified")
-		}
-	}
-
-	switch *config.Flags.DeviceDiscoveryStrategy {
-	case "auto":
-	case "nvml":
-	case "tegra":
-	default:
-		return fmt.Errorf("invalid --device-discovery-strategy option %v", *config.Flags.DeviceDiscoveryStrategy)
-	}
-
-	switch *config.Flags.MigStrategy {
-	case spec.MigStrategyNone:
-	case spec.MigStrategySingle:
-	case spec.MigStrategyMixed:
-	default:
-		return fmt.Errorf("unknown MIG strategy: %v", *config.Flags.MigStrategy)
-	}
-
-	if err := spec.AssertChannelIDsValid(config.Imex.ChannelIDs); err != nil {
-		return fmt.Errorf("invalid IMEX channel IDs: %w", err)
-	}
-
+	_ = "STUB: not implemented"
 	return nil
 }
 
 func loadConfig(c *cli.Context, flags []cli.Flag) (*spec.Config, error) {
-	config, err := spec.NewConfig(c, flags)
-	if err != nil {
-		return nil, fmt.Errorf("unable to finalize config: %v", err)
-	}
-	config.Flags.GFD = nil
-	return config, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
-func start(c *cli.Context, o *options) error {
-	util.NodeName = os.Getenv(util.NodeNameEnvName)
-	client.InitGlobalClient()
+func start(c *cli.Context, o *options) error { _ = "STUB: not implemented"; return nil }
 
-	kubeletSocketDir := filepath.Dir(o.kubeletSocket)
-	klog.Infof("Starting FS watcher for %v", kubeletSocketDir)
-	watcher, err := watch.Files(kubeletSocketDir)
-	if err != nil {
-		return fmt.Errorf("failed to create FS watcher for %s: %v", kubeletdevicepluginv1beta1.DevicePluginPath, err)
-	}
-	defer watcher.Close()
+/*Loading config files*/
 
-	/*Loading config files*/
-	klog.Infof("Start working on node %s", util.NodeName)
-	klog.Info("Starting OS watcher.")
-	sigs := watch.Signals(syscall.SIGHUP, syscall.SIGINT, syscall.SIGTERM, syscall.SIGQUIT)
+// If we are restarting, stop plugins from previous run.
 
-	var started bool
-	var restartTimeout <-chan time.Time
-	var plugins []plugin.Interface
-restart:
-	// If we are restarting, stop plugins from previous run.
-	if started {
-		err := stopPlugins(plugins)
-		if err != nil {
-			return fmt.Errorf("error stopping plugins from previous run: %v", err)
-		}
-	}
+// Start an infinite loop, waiting for several indicators to either log
+// some messages, trigger a restart of the plugins, or exit the program.
 
-	klog.Info("Starting Plugins.")
-	plugins, restartPlugins, err := startPlugins(c, o)
-	if err != nil {
-		return fmt.Errorf("error starting plugins: %v", err)
-	}
-	started = true
+// If the restart timeout has expired, then restart the plugins
 
-	if restartPlugins {
-		klog.Info("Failed to start one or more plugins. Retrying in 30s...")
-		restartTimeout = time.After(30 * time.Second)
-	}
+// Detect a kubelet restart by watching for a newly created
+// 'kubeletdevicepluginv1beta1.KubeletSocket' file. When this occurs, restart this loop,
+// restarting all of the plugins in the process.
 
-	// Start an infinite loop, waiting for several indicators to either log
-	// some messages, trigger a restart of the plugins, or exit the program.
-	for {
-		select {
-		// If the restart timeout has expired, then restart the plugins
-		case <-restartTimeout:
-			goto restart
+// Watch for any other fs errors and log them.
 
-			// Detect a kubelet restart by watching for a newly created
-			// 'kubeletdevicepluginv1beta1.KubeletSocket' file. When this occurs, restart this loop,
-			// restarting all of the plugins in the process.
-		case event := <-watcher.Events:
-			if o.kubeletSocket != "" && event.Name == o.kubeletSocket && event.Op&fsnotify.Create == fsnotify.Create {
-				klog.Infof("inotify: %s created, restarting.", o.kubeletSocket)
-				goto restart
-			}
-
-		// Watch for any other fs errors and log them.
-		case err := <-watcher.Errors:
-			klog.Errorf("inotify: %s", err)
-
-		// Watch for any signals from the OS. On SIGHUP, restart this loop,
-		// restarting all of the plugins in the process. On all other
-		// signals, exit the loop and exit the program.
-		case s := <-sigs:
-			switch s {
-			case syscall.SIGHUP:
-				klog.Info("Received SIGHUP, restarting.")
-				goto restart
-			default:
-				klog.Infof("Received signal \"%v\", shutting down.", s)
-				goto exit
-			}
-		}
-	}
-exit:
-	err = stopPlugins(plugins)
-	if err != nil {
-		return fmt.Errorf("error stopping plugins: %v", err)
-	}
-	return nil
-}
+// Watch for any signals from the OS. On SIGHUP, restart this loop,
+// restarting all of the plugins in the process. On all other
+// signals, exit the loop and exit the program.
 
 func startPlugins(c *cli.Context, o *options) ([]plugin.Interface, bool, error) {
+	_ = "STUB: not implemented"
 	// Load the configuration file
-	klog.Info("Loading configuration.")
-	config, err := loadConfig(c, o.flags)
-	if err != nil {
-		return nil, false, fmt.Errorf("unable to load config: %v", err)
-	}
-	disableResourceRenamingInConfig(config)
-
-	/*Loading config files*/
-	//fmt.Println("NodeName=", config.NodeName)
-	devConfig, err := generateDeviceConfigFromNvidia(config, c, o.flags)
-	if err != nil {
-		klog.Errorf("failed to load config file %s", err.Error())
-		return nil, false, err
-	}
-
-	driverRoot := root(*config.Flags.Plugin.ContainerDriverRoot)
-	// We construct an NVML library specifying the path to libnvidia-ml.so.1
-	// explicitly so that we don't have to rely on the library path.
-	nvmllib := nvml.New(
-		nvml.WithLibraryPath(driverRoot.tryResolveLibrary("libnvidia-ml.so.1")),
-	)
-	devicelib := device.New(nvmllib)
-	infolib := nvinfo.New(
-		nvinfo.WithNvmlLib(nvmllib),
-		nvinfo.WithDeviceLib(devicelib),
-	)
-
-	err = validateFlags(infolib, config)
-	if err != nil {
-		return nil, false, fmt.Errorf("unable to validate flags: %v", err)
-	}
-
-	// Update the configuration file with default resources.
-	klog.Info("Updating config with default resource matching patterns.")
-	err = rm.AddDefaultResourcesToConfig(infolib, nvmllib, devicelib, &devConfig)
-	if err != nil {
-		return nil, false, fmt.Errorf("unable to add default resources to config: %v", err)
-	}
-
-	// Print the config to the output.
-	configJSON, err := json.MarshalIndent(devConfig, "", "  ")
-	if err != nil {
-		return nil, false, fmt.Errorf("failed to marshal config to JSON: %v", err)
-	}
-	klog.Infof("\nRunning with config:\n%v", string(configJSON))
-
-	// Get the set of plugins.
-	klog.Info("Retrieving plugins.")
-	plugins, err := GetPlugins(c.Context, infolib, nvmllib, devicelib, &devConfig)
-	if err != nil {
-		return nil, false, fmt.Errorf("error getting plugins: %v", err)
-	}
-
-	// Loop through all plugins, starting them if they have any devices
-	// to serve. If even one plugin fails to start properly, try
-	// starting them all again.
-	started := 0
-	for _, p := range plugins {
-		// Just continue if there are no devices to serve for plugin p.
-		if len(p.Devices()) == 0 {
-			continue
-		}
-
-		// Start the gRPC server for plugin p and connect it with the kubelet.
-		if err := p.Start(o.kubeletSocket); err != nil {
-			klog.Errorf("Failed to start plugin: %v", err)
-			return plugins, true, nil
-		}
-		started++
-	}
-
-	if started == 0 {
-		klog.Info("No devices found. Waiting indefinitely.")
-	}
-
-	return plugins, false, nil
+	return nil, false, nil
 }
 
-func stopPlugins(plugins []plugin.Interface) error {
-	klog.Info("Stopping plugins.")
-	errs := []error{}
-	for _, p := range plugins {
-		err := p.Stop()
-		errs = append(errs, err)
-	}
-	return errorsutil.NewAggregate(errs)
-}
+/*Loading config files*/
+//fmt.Println("NodeName=", config.NodeName)
+
+// We construct an NVML library specifying the path to libnvidia-ml.so.1
+// explicitly so that we don't have to rely on the library path.
+
+// Update the configuration file with default resources.
+
+// Print the config to the output.
+
+// Get the set of plugins.
+
+// Loop through all plugins, starting them if they have any devices
+// to serve. If even one plugin fails to start properly, try
+// starting them all again.
+
+// Just continue if there are no devices to serve for plugin p.
+
+// Start the gRPC server for plugin p and connect it with the kubelet.
+
+func stopPlugins(plugins []plugin.Interface) error { _ = "STUB: not implemented"; return nil }
 
 // disableResourceRenamingInConfig temporarily disable the resource renaming feature of the plugin.
 // We plan to reeenable this feature in a future release.
 func disableResourceRenamingInConfig(config *spec.Config) {
+	_ = "STUB: not implemented"
 	// Disable resource renaming through config.Resource
-	if len(config.Resources.GPUs) > 0 || len(config.Resources.MIGs) > 0 {
-		klog.Infof("Customizing the 'resources' field is not yet supported in the config. Ignoring...")
-	}
-	config.Resources.GPUs = nil
-	config.Resources.MIGs = nil
-
-	// Disable renaming / device selection in Sharing.TimeSlicing.Resources
-	renameByDefault := config.Sharing.TimeSlicing.RenameByDefault
-	setsNonDefaultRename := false
-	setsDevices := false
-	for i, r := range config.Sharing.TimeSlicing.Resources {
-		if !renameByDefault && r.Rename != "" {
-			setsNonDefaultRename = true
-			config.Sharing.TimeSlicing.Resources[i].Rename = ""
-		}
-		if renameByDefault && r.Rename != r.Name.DefaultSharedRename() {
-			setsNonDefaultRename = true
-			config.Sharing.TimeSlicing.Resources[i].Rename = r.Name.DefaultSharedRename()
-		}
-		if !r.Devices.All {
-			setsDevices = true
-			config.Sharing.TimeSlicing.Resources[i].Devices.All = true
-			config.Sharing.TimeSlicing.Resources[i].Devices.Count = 0
-			config.Sharing.TimeSlicing.Resources[i].Devices.List = nil
-		}
-	}
-	if setsNonDefaultRename {
-		klog.Warning("Setting the 'rename' field in sharing.timeSlicing.resources is not yet supported in the config. Ignoring...")
-	}
-	if setsDevices {
-		klog.Warning("Customizing the 'devices' field in sharing.timeSlicing.resources is not yet supported in the config. Ignoring...")
-	}
+	return
 }
+
+// Disable renaming / device selection in Sharing.TimeSlicing.Resources

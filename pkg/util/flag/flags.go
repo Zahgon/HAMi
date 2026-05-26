@@ -19,22 +19,8 @@ package flag
 import (
 	"github.com/spf13/pflag"
 	"github.com/urfave/cli/v2"
-	"k8s.io/klog/v2"
 )
 
-func PrintPFlags(flags *pflag.FlagSet) {
-	flags.VisitAll(func(flag *pflag.Flag) {
-		klog.Infof("FLAG: --%s=%q", flag.Name, flag.Value)
-	})
-}
+func PrintPFlags(flags *pflag.FlagSet) { _ = "STUB: not implemented"; return }
 
-func PrintCliFlags(c *cli.Context) {
-	for _, flag := range c.App.Flags {
-		names := flag.Names()
-		for _, name := range names {
-			value := c.Generic(name)
-			klog.Infof("FLAG: --%s=%q\n", name, value)
-		}
-
-	}
-}
+func PrintCliFlags(c *cli.Context) { _ = "STUB: not implemented"; return }

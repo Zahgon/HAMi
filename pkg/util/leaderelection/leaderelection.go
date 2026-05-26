@@ -17,7 +17,6 @@ limitations under the License.
 package leaderelection
 
 import (
-	"strings"
 	"sync"
 	"time"
 
@@ -55,135 +54,42 @@ type leaderManager struct {
 }
 
 func NewLeaderManager(hostname, namespace, name string, callbacks LeaderCallbacks) *leaderManager {
-	m := &leaderManager{
-		hostname:          hostname,
-		resourceName:      name,
-		resourceNamespace: namespace,
-		callbacks:         callbacks,
-	}
-
-	m.FilteringResourceEventHandler = cache.FilteringResourceEventHandler{
-		FilterFunc: func(obj any) bool {
-			lease := objectToLease(obj)
-			if lease == nil {
-				return false
-			}
-			return lease.Name == m.resourceName && lease.Namespace == m.resourceNamespace
-		},
-		Handler: cache.ResourceEventHandlerFuncs{
-			AddFunc:    m.onAdd,
-			UpdateFunc: m.onUpdate,
-			DeleteFunc: m.onDelete,
-		},
-	}
-
-	return m
-}
-
-func objectToLease(obj any) *coordinationv1.Lease {
-	switch t := obj.(type) {
-	case *coordinationv1.Lease:
-		return t
-	case cache.DeletedFinalStateUnknown:
-		if lease, ok := t.Obj.(*coordinationv1.Lease); ok {
-			return lease
-		}
-	default:
-		return nil
-	}
+	_ = "STUB: not implemented"
 	return nil
 }
 
-func (m *leaderManager) setObservedRecord(lease *coordinationv1.Lease) {
-	m.observedLease = lease
+func objectToLease(obj any) *coordinationv1.Lease { _ = "STUB: not implemented"; return nil }
 
-	if lease == nil {
-		m.observedTime = time.Time{}
-	} else {
-		m.observedTime = time.Now()
-	}
+func (m *leaderManager) setObservedRecord(lease *coordinationv1.Lease) {
+	_ = "STUB: not implemented"
+	return
 }
 
 // onAdd notifies if we are the leader when lease is created.
-func (m *leaderManager) onAdd(obj any) {
-	lease, ok := obj.(*coordinationv1.Lease)
-	if !ok {
-		return
-	}
+func (m *leaderManager) onAdd(obj any) { _ = "STUB: not implemented"; return }
 
-	m.leaseLock.Lock()
-	defer m.leaseLock.Unlock()
-
-	m.setObservedRecord(lease)
-	// Notify if we are the leader from the very begging
-	if m.isHolderOf(lease) && m.callbacks.OnStartedLeading != nil {
-		m.callbacks.OnStartedLeading()
-	}
-}
+// Notify if we are the leader from the very begging
 
 // onUpdate notifies when we have been elected as leader.
-func (m *leaderManager) onUpdate(oldObj, newObj any) {
-	newLease, ok := newObj.(*coordinationv1.Lease)
-	if !ok {
-		return
-	}
-	oldLease, ok := oldObj.(*coordinationv1.Lease)
-	if !ok {
-		return
-	}
+func (m *leaderManager) onUpdate(oldObj, newObj any) { _ = "STUB: not implemented"; return }
 
-	m.leaseLock.Lock()
-	defer m.leaseLock.Unlock()
-	m.setObservedRecord(newLease)
-
-	// Notify if we have been elected to become the leader
-	if !m.isHolderOf(oldLease) && m.isHolderOf(newLease) {
-		if m.callbacks.OnStartedLeading != nil {
-			m.callbacks.OnStartedLeading()
-		}
-	} else if m.isHolderOf(oldLease) && !m.isHolderOf(newLease) {
-		if m.callbacks.OnStoppedLeading != nil {
-			m.callbacks.OnStoppedLeading()
-		}
-	}
-}
+// Notify if we have been elected to become the leader
 
 func (m *leaderManager) onDelete(obj any) {
+	_ = "STUB: not implemented"
 	// Do nothing on delete
-	m.leaseLock.Lock()
-	defer m.leaseLock.Unlock()
-
-	m.setObservedRecord(nil)
-	if m.callbacks.OnStoppedLeading != nil {
-		m.callbacks.OnStoppedLeading()
-	}
+	return
 }
 
 func (m *leaderManager) isHolderOf(lease *coordinationv1.Lease) bool {
+	_ = "STUB: not implemented"
 	// kube-scheduler lease id take format of `hostname + "_" + string(uuid.NewUUID())`
-	if lease == nil || lease.Spec.HolderIdentity == nil {
-		return false
-	}
-	return strings.HasPrefix(*lease.Spec.HolderIdentity, m.hostname)
+	return false
 }
 
-func (m *leaderManager) isLeaseValid(now time.Time) bool {
-	if m.observedLease == nil || m.observedLease.Spec.LeaseDurationSeconds == nil {
-		return false
-	}
-	return m.observedTime.Add(time.Second * time.Duration(*m.observedLease.Spec.LeaseDurationSeconds)).After(now)
-}
+func (m *leaderManager) isLeaseValid(now time.Time) bool { _ = "STUB: not implemented"; return false }
 
-func (m *leaderManager) IsLeader() bool {
-	m.leaseLock.RLock()
-	defer m.leaseLock.RUnlock()
-
-	if m.observedLease == nil {
-		return false
-	}
-
-	return m.isHolderOf(m.observedLease) && m.isLeaseValid(time.Now())
-}
+func (m *leaderManager) IsLeader() bool { _ = "STUB: not implemented"; return false }
 
 type dummyLeaderManager struct {
 	elected bool
@@ -196,12 +102,6 @@ var _ LeaderManager = &dummyLeaderManager{}
 // It will always return the elected state passed in the constructor when calling IsLeader() and you will never get notified by it's channel.
 //
 // This is useful when disabling leader-election.
-func NewDummyLeaderManager(elected bool) *dummyLeaderManager {
-	return &dummyLeaderManager{
-		elected: elected,
-	}
-}
+func NewDummyLeaderManager(elected bool) *dummyLeaderManager { _ = "STUB: not implemented"; return nil }
 
-func (d *dummyLeaderManager) IsLeader() bool {
-	return d.elected
-}
+func (d *dummyLeaderManager) IsLeader() bool { _ = "STUB: not implemented"; return false }

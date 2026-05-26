@@ -32,32 +32,27 @@
 
 package cdi
 
-import (
-	"k8s.io/klog/v2"
-)
-
 type null struct{}
 
 var _ Interface = &null{}
 
 // NewNullHandler returns an instance of the 'cdi' interface that can
 // be used when CDI specs are not required.
-func NewNullHandler() Interface {
-	return &null{}
-}
+func NewNullHandler() Interface { _ = "STUB: not implemented"; return *new(Interface) }
 
 func (n *null) AdditionalDevices() []string {
+	_ = "STUB: not implemented"
+
+	// CreateSpecFile is a no-op for the null handler.
 	return nil
 }
 
-// CreateSpecFile is a no-op for the null handler.
 func (n *null) CreateSpecFile() error {
+	_ = "STUB: not implemented"
+
+	// QualifiedName is a no-op for the null handler. A error message is logged
+	// indicating this should never be called for the null handler.
 	return nil
 }
 
-// QualifiedName is a no-op for the null handler. A error message is logged
-// indicating this should never be called for the null handler.
-func (n *null) QualifiedName(class string, id string) string {
-	klog.Error("cannot return a qualified CDI device name with the null CDI handler")
-	return ""
-}
+func (n *null) QualifiedName(class string, id string) string { _ = "STUB: not implemented"; return "" }

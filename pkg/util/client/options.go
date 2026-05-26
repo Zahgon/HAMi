@@ -17,8 +17,6 @@ limitations under the License.
 package client
 
 import (
-	"time"
-
 	"k8s.io/client-go/rest"
 )
 
@@ -33,37 +31,13 @@ const (
 )
 
 // WithQPS sets the QPS for the client.
-func WithQPS(qps float32) Option {
-	return func(c *rest.Config) {
-		c.QPS = qps
-	}
-}
+func WithQPS(qps float32) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithBurst sets the burst for the client.
-func WithBurst(burst int) Option {
-	return func(c *rest.Config) {
-		c.Burst = burst
-	}
-}
+func WithBurst(burst int) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithTimeout sets the timeout for the client.
-func WithTimeout(timeout int) Option {
-	return func(c *rest.Config) {
-		c.Timeout = time.Duration(timeout) * time.Second
-	}
-}
+func WithTimeout(timeout int) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithDefaults sets default values for the client configuration.
-func WithDefaults() Option {
-	return func(c *rest.Config) {
-		if c.QPS == 0 {
-			c.QPS = DefaultQPS
-		}
-		if c.Burst == 0 {
-			c.Burst = DefaultBurst
-		}
-		if c.Timeout == 0 {
-			c.Timeout = time.Duration(DefaultTimeout) * time.Second
-		}
-	}
-}
+func WithDefaults() Option { _ = "STUB: not implemented"; return *new(Option) }

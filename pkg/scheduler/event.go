@@ -17,16 +17,7 @@ limitations under the License.
 package scheduler
 
 import (
-	"fmt"
-
-	"github.com/Project-HAMi/HAMi/pkg/scheduler/config"
-
 	corev1 "k8s.io/api/core/v1"
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"k8s.io/apimachinery/pkg/runtime"
-	clientgoscheme "k8s.io/client-go/kubernetes/scheme"
-	v1core "k8s.io/client-go/kubernetes/typed/core/v1"
-	"k8s.io/client-go/tools/record"
 )
 
 // Define events for ResourceBinding, ResourceFilter objects and their associated resources.
@@ -42,37 +33,15 @@ const (
 	EventReasonBindingSucceed = "BindingSucceed"
 )
 
-func (s *Scheduler) addAllEventHandlers() {
-
-	eventBroadcaster := record.NewBroadcaster()
-	eventBroadcaster.StartStructuredLogging(0)
-	eventBroadcaster.StartRecordingToSink(&v1core.EventSinkImpl{Interface: s.kubeClient.CoreV1().Events(metav1.NamespaceAll)})
-	schema := runtime.NewScheme()
-
-	_ = clientgoscheme.AddToScheme(schema)
-	s.eventRecorder = eventBroadcaster.NewRecorder(schema, corev1.EventSource{Component: config.SchedulerName})
-}
+func (s *Scheduler) addAllEventHandlers() { _ = "STUB: not implemented"; return }
 
 func (s *Scheduler) recordScheduleBindingResultEvent(pod *corev1.Pod, eventReason string, nodeResult []string, schedulerErr error) {
-	if pod == nil {
-		return
-	}
-	if schedulerErr == nil {
-		successMsg := fmt.Sprintf("Successfully binding node %v to %v/%v", nodeResult, pod.Namespace, pod.Name)
-		s.eventRecorder.Event(pod, corev1.EventTypeNormal, eventReason, successMsg)
-	} else {
-		s.eventRecorder.Event(pod, corev1.EventTypeWarning, eventReason, schedulerErr.Error())
-	}
+	_ = "STUB: not implemented"
+	return
 }
 
 func (s *Scheduler) recordScheduleFilterResultEvent(pod *corev1.Pod, eventReason string, successMsg string, schedulerErr error) {
+	_ = "STUB: not implemented"
 	// eventRecorder maybe  nil
-	if pod == nil || s.eventRecorder == nil {
-		return
-	}
-	if schedulerErr == nil {
-		s.eventRecorder.Event(pod, corev1.EventTypeNormal, eventReason, successMsg)
-	} else {
-		s.eventRecorder.Event(pod, corev1.EventTypeWarning, eventReason, schedulerErr.Error())
-	}
+	return
 }

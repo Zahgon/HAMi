@@ -42,84 +42,42 @@ type Option func(*cdiHandler)
 
 // WithDeviceListStrategies provides an Option to set the enabled flag used by the 'cdi' interface
 func WithDeviceListStrategies(deviceListStrategies spec.DeviceListStrategies) Option {
-	return func(c *cdiHandler) {
-		c.deviceListStrategies = deviceListStrategies
-	}
+	_ = "STUB: not implemented"
+	return *new(Option)
 }
 
 // WithDriverRoot provides an Option to set the driver root used by the 'cdi' interface.
-func WithDriverRoot(root string) Option {
-	return func(c *cdiHandler) {
-		c.driverRoot = root
-	}
-}
+func WithDriverRoot(root string) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithDevRoot sets the dev root for the `cdi` interface.
-func WithDevRoot(root string) Option {
-	return func(c *cdiHandler) {
-		c.devRoot = root
-	}
-}
+func WithDevRoot(root string) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithTargetDriverRoot provides an Option to set the target (host) driver root used by the 'cdi' interface
-func WithTargetDriverRoot(root string) Option {
-	return func(c *cdiHandler) {
-		c.targetDriverRoot = root
-	}
-}
+func WithTargetDriverRoot(root string) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithTargetDevRoot provides an Option to set the target (host) dev root used by the 'cdi' interface
-func WithTargetDevRoot(root string) Option {
-	return func(c *cdiHandler) {
-		c.targetDevRoot = root
-	}
-}
+func WithTargetDevRoot(root string) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithNvidiaCTKPath provides an Option to set the nvidia-ctk path used by the 'cdi' interface
-func WithNvidiaCTKPath(path string) Option {
-	return func(c *cdiHandler) {
-		c.nvidiaCTKPath = path
-	}
-}
+func WithNvidiaCTKPath(path string) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithDeviceIDStrategy provides an Option to set the device ID strategy used by the 'cdi' interface
-func WithDeviceIDStrategy(strategy string) Option {
-	return func(c *cdiHandler) {
-		c.deviceIDStrategy = strategy
-	}
-}
+func WithDeviceIDStrategy(strategy string) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithVendor provides an Option to set the vendor used by the 'cdi' interface
-func WithVendor(vendor string) Option {
-	return func(c *cdiHandler) {
-		c.vendor = vendor
-	}
-}
+func WithVendor(vendor string) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithGdrcopyEnabled provides an option to set whether a GDS CDI spec should be generated
-func WithGdrcopyEnabled(enabled bool) Option {
-	return func(c *cdiHandler) {
-		c.gdrcopyEnabled = enabled
-	}
-}
+func WithGdrcopyEnabled(enabled bool) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithGdsEnabled provides an option to set whether a GDS CDI spec should be generated
-func WithGdsEnabled(enabled bool) Option {
-	return func(c *cdiHandler) {
-		c.gdsEnabled = enabled
-	}
-}
+func WithGdsEnabled(enabled bool) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithMofedEnabled provides an option to set whether a MOFED CDI spec should be generated
-func WithMofedEnabled(enabled bool) Option {
-	return func(c *cdiHandler) {
-		c.mofedEnabled = enabled
-	}
-}
+func WithMofedEnabled(enabled bool) Option { _ = "STUB: not implemented"; return *new(Option) }
 
 // WithImexChannels sets the IMEX channels for which CDI specs should be generated.
 func WithImexChannels(imexChannels imex.Channels) Option {
-	return func(c *cdiHandler) {
-		c.imexChannels = imexChannels
-	}
+	_ = "STUB: not implemented"
+	return *new(Option)
 }

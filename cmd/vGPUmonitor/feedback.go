@@ -19,14 +19,8 @@ package main
 import (
 	"context"
 	"errors"
-	"fmt"
-	"os"
-	"sort"
-	"strings"
-	"time"
 
 	"github.com/NVIDIA/go-nvml/pkg/nvml"
-	"k8s.io/klog/v2"
 
 	"github.com/Project-HAMi/HAMi/pkg/monitor/nvidia"
 )
@@ -42,178 +36,33 @@ var errTemporaryClosed = errors.New("temporary closed")
 type UtilizationPerDevice []int
 
 func setcGgroupDriver() int {
+	_ = "STUB: not implemented"
 	// 1 for cgroupfs 2 for systemd
-	kubeletconfig, err := os.ReadFile("/hostvar/lib/kubelet/config.yaml")
-	if err != nil {
-		return 0
-	}
-	content := string(kubeletconfig)
-	pos := strings.LastIndex(content, "cgroupDriver:")
-	if pos < 0 {
-		return 0
-	}
-	if strings.Contains(content, "systemd") {
-		return 2
-	}
-	if strings.Contains(content, "cgroupfs") {
-		return 1
-	}
 	return 0
 }
 
 func getUsedGPUPid() ([]uint, nvml.Return) {
-	tmp := []nvml.ProcessInfo{}
-	count, err := nvml.DeviceGetCount()
-	if err != nvml.SUCCESS {
-		return []uint{}, err
-	}
-	for i := range count {
-		device, err := nvml.DeviceGetHandleByIndex(i)
-		if err != nvml.SUCCESS {
-			return []uint{}, err
-		}
-		ids, err := device.GetComputeRunningProcesses()
-		if err != nvml.SUCCESS {
-			return []uint{}, err
-		}
-		tmp = append(tmp, ids...)
-	}
-	result := make([]uint, 0)
-	m := make(map[uint]bool)
-	for _, v := range tmp {
-		if _, ok := m[uint(v.Pid)]; !ok {
-			result = append(result, uint(v.Pid))
-			m[uint(v.Pid)] = true
-		}
-	}
-	sort.Slice(tmp, func(i, j int) bool { return tmp[i].Pid > tmp[j].Pid })
-	return result, nvml.SUCCESS
+	_ = "STUB: not implemented"
+	return nil, *new(nvml.Return)
 }
 
 func CheckBlocking(utSwitchOn map[string]UtilizationPerDevice, p int, c *nvidia.ContainerUsage) bool {
-	for i := range c.Info.DeviceMax() {
-		uuid := c.Info.DeviceUUID(i)
-		_, ok := utSwitchOn[uuid]
-		if ok {
-			for i := range min(p, len(utSwitchOn[uuid])) {
-				if utSwitchOn[uuid][i] > 0 {
-					return true
-				}
-			}
-			return false
-		}
-	}
+	_ = "STUB: not implemented"
 	return false
 }
 
 // Check whether task with higher priority use GPU or there are other tasks with the same priority.
 func CheckPriority(utSwitchOn map[string]UtilizationPerDevice, p int, c *nvidia.ContainerUsage) bool {
-	for i := range c.Info.DeviceMax() {
-		uuid := c.Info.DeviceUUID(i)
-		_, ok := utSwitchOn[uuid]
-		if ok {
-			for i := range min(p, len(utSwitchOn[uuid])) {
-				if utSwitchOn[uuid][i] > 0 {
-					return true
-				}
-			}
-			if p >= 0 && p < len(utSwitchOn[uuid]) && utSwitchOn[uuid][p] > 1 {
-				return true
-			}
-		}
-	}
+	_ = "STUB: not implemented"
 	return false
 }
 
-func Observe(lister *nvidia.ContainerLister) {
-	utSwitchOn := map[string]UtilizationPerDevice{}
-	containers := lister.ListContainers()
+func Observe(lister *nvidia.ContainerLister) { _ = "STUB: not implemented"; return }
 
-	for _, c := range containers {
-		recentKernel := c.Info.GetRecentKernel()
-		if recentKernel > 0 {
-			recentKernel--
-			if recentKernel > 0 {
-				for i := range c.Info.DeviceMax() {
-					//for _, devuuid := range val.sr.uuids {
-					// Null device condition
-					if !c.Info.IsValidUUID(i) {
-						continue
-					}
-					uuid := c.Info.DeviceUUID(i)
-					p := c.Info.GetPriority()
-					if p < 0 {
-						continue
-					}
-					for p >= len(utSwitchOn[uuid]) {
-						utSwitchOn[uuid] = append(utSwitchOn[uuid], 0)
-					}
-					utSwitchOn[uuid][p]++
-				}
-			}
-			c.Info.SetRecentKernel(recentKernel)
-		}
-	}
-	for idx, c := range containers {
-		priority := c.Info.GetPriority()
-		recentKernel := c.Info.GetRecentKernel()
-		utilizationSwitch := c.Info.GetUtilizationSwitch()
-		if CheckBlocking(utSwitchOn, priority, c) {
-			if recentKernel >= 0 {
-				klog.V(5).Infof("utSwitchon=%v", utSwitchOn)
-				klog.V(5).Infof("Setting Blocking to on %v", idx)
-				c.Info.SetRecentKernel(-1)
-			}
-		} else {
-			if recentKernel < 0 {
-				klog.V(5).Infof("utSwitchon=%v", utSwitchOn)
-				klog.V(5).Infof("Setting Blocking to off %v", idx)
-				c.Info.SetRecentKernel(0)
-			}
-		}
-		if CheckPriority(utSwitchOn, priority, c) {
-			if utilizationSwitch != 1 {
-				klog.V(5).Infof("utSwitchon=%v", utSwitchOn)
-				klog.V(5).Infof("Setting UtilizationSwitch to on %v", idx)
-				c.Info.SetUtilizationSwitch(1)
-			}
-		} else {
-			if utilizationSwitch != 0 {
-				klog.V(5).Infof("utSwitchon=%v", utSwitchOn)
-				klog.V(5).Infof("Setting UtilizationSwitch to off %v", idx)
-				c.Info.SetUtilizationSwitch(0)
-			}
-		}
-	}
-}
+//for _, devuuid := range val.sr.uuids {
+// Null device condition
 
 func watchAndFeedback(ctx context.Context, lister *nvidia.ContainerLister, migLockSignal <-chan bool) error {
-	klog.Info("Starting watchAndFeedback")
-	if nvret := nvml.Init(); nvret != nvml.SUCCESS {
-		return fmt.Errorf("failed to initialize NVML: %s", nvml.ErrorString(nvret))
-	}
-	defer nvml.Shutdown()
-
-	ticker := time.NewTicker(time.Second * 5)
-	defer ticker.Stop()
-
-	for {
-		select {
-		case <-ctx.Done():
-			klog.Info("Shutting down watchAndFeedback")
-			return nil
-		case signal := <-migLockSignal:
-			if signal {
-				klog.Info("Received MIG apply lock file")
-				return errTemporaryClosed
-			}
-
-		case <-ticker.C:
-			if err := lister.Update(); err != nil {
-				klog.Errorf("Failed to update container list: %v", err)
-				continue
-			}
-			Observe(lister)
-		}
-	}
+	_ = "STUB: not implemented"
+	return nil
 }

@@ -57,13 +57,13 @@ type mpsOptions struct {
 // getMPSOptions returns the MPS options specified for the resource manager.
 // If MPS is not configured and empty set of options is returned.
 func (o *options) getMPSOptions(resourceManager rm.ResourceManager) (mpsOptions, error) {
-	return mpsOptions{}, nil
+	_ = "STUB: not implemented"
+	return *new(mpsOptions), nil
 }
 
-func (m *mpsOptions) waitForDaemon() error {
-	return nil
-}
+func (m *mpsOptions) waitForDaemon() error { _ = "STUB: not implemented"; return nil }
 
 func (m *mpsOptions) updateReponse(response *kubeletdevicepluginv1beta1.ContainerAllocateResponse) {
+	_ = "STUB: not implemented"
 	return
 }

@@ -32,70 +32,21 @@
 
 package main
 
-import (
-	"fmt"
-	"os"
-	"path/filepath"
-)
-
 type root string
 
-func (r root) join(parts ...string) string {
-	return filepath.Join(append([]string{string(r)}, parts...)...)
-}
+func (r root) join(parts ...string) string { _ = "STUB: not implemented"; return "" }
 
 // getDevRoot returns the dev root associated with the root.
 // If the root is not a dev root, this defaults to "/".
-func (r root) getDevRoot() string {
-	if r.isDevRoot() {
-		return string(r)
-	}
-	return "/"
-}
+func (r root) getDevRoot() string { _ = "STUB: not implemented"; return "" }
 
 // isDevRoot checks whether the specified root is a dev root.
 // A dev root is defined as a root containing a /dev folder.
-func (r root) isDevRoot() bool {
-	stat, err := os.Stat(filepath.Join(string(r), "dev"))
-	if err != nil {
-		return false
-	}
-	return stat.IsDir()
-}
+func (r root) isDevRoot() bool { _ = "STUB: not implemented"; return false }
 
-func (r root) tryResolveLibrary(libraryName string) string {
-	if r == "" || r == "/" {
-		return libraryName
-	}
-
-	librarySearchPaths := []string{
-		"/usr/lib64",
-		"/usr/lib/x86_64-linux-gnu",
-		"/usr/lib/aarch64-linux-gnu",
-		"/lib64",
-		"/lib/x86_64-linux-gnu",
-		"/lib/aarch64-linux-gnu",
-	}
-
-	for _, d := range librarySearchPaths {
-		l := r.join(d, libraryName)
-		resolved, err := resolveLink(l)
-		if err != nil {
-			continue
-		}
-		return resolved
-	}
-
-	return libraryName
-}
+func (r root) tryResolveLibrary(libraryName string) string { _ = "STUB: not implemented"; return "" }
 
 // resolveLink finds the target of a symlink or the file itself in the
 // case of a regular file.
 // This is equivalent to running `readlink -f ${l}`.
-func resolveLink(l string) (string, error) {
-	resolved, err := filepath.EvalSymlinks(l)
-	if err != nil {
-		return "", fmt.Errorf("error resolving link '%v': %w", l, err)
-	}
-	return resolved, nil
-}
+func resolveLink(l string) (string, error) { _ = "STUB: not implemented"; return "", nil }

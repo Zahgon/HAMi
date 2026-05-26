@@ -33,8 +33,6 @@
 package cdi
 
 import (
-	"tags.cncf.io/container-device-interface/specs-go"
-
 	"github.com/NVIDIA/nvidia-container-toolkit/pkg/nvcdi"
 	"github.com/NVIDIA/nvidia-container-toolkit/pkg/nvcdi/spec"
 
@@ -47,34 +45,12 @@ type imexChannelCDILib struct {
 }
 
 func (cdi *cdiHandler) newImexChannelSpecGenerator() nvcdi.SpecGenerator {
-	lib := &imexChannelCDILib{
-		vendor:       cdi.vendor,
-		imexChannels: cdi.imexChannels,
-	}
-
-	return lib
+	_ = "STUB: not implemented"
+	return *new(nvcdi.SpecGenerator)
 }
 
 // GetSpec returns the CDI specs for IMEX channels.
 func (l *imexChannelCDILib) GetSpec(...string) (spec.Interface, error) {
-	var deviceSpecs []specs.Device
-	for _, channel := range l.imexChannels {
-		deviceSpec := specs.Device{
-			Name: channel.ID,
-			ContainerEdits: specs.ContainerEdits{
-				DeviceNodes: []*specs.DeviceNode{
-					{
-						Path:     channel.Path,
-						HostPath: channel.HostPath,
-					},
-				},
-			},
-		}
-		deviceSpecs = append(deviceSpecs, deviceSpec)
-	}
-	return spec.New(
-		spec.WithDeviceSpecs(deviceSpecs),
-		spec.WithVendor(l.vendor),
-		spec.WithClass("imex-channel"),
-	)
+	_ = "STUB: not implemented"
+	return *new(spec.Interface), nil
 }

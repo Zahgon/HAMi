@@ -17,20 +17,7 @@ limitations under the License.
 package device
 
 import (
-	"encoding/json"
-	"fmt"
-	"maps"
-	"slices"
-	"strconv"
-	"strings"
-	"time"
-
-	"github.com/ccoveille/go-safecast"
-
 	corev1 "k8s.io/api/core/v1"
-	"k8s.io/klog/v2"
-
-	"github.com/Project-HAMi/HAMi/pkg/util"
 )
 
 type Devices interface {
@@ -177,510 +164,115 @@ func init() {
 	SupportDevices = make(map[string]string)
 }
 
-func (d *DeviceUsage) DeepCopy() *DeviceUsage {
-	if d == nil {
-		return nil
-	}
-	dup := &DeviceUsage{
-		ID:        d.ID,
-		Index:     d.Index,
-		Used:      d.Used,
-		Count:     d.Count,
-		Usedmem:   d.Usedmem,
-		Totalmem:  d.Totalmem,
-		Totalcore: d.Totalcore,
-		Usedcores: d.Usedcores,
-		Mode:      d.Mode,
-		Numa:      d.Numa,
-		Type:      d.Type,
-		Health:    d.Health,
-	}
+func (d *DeviceUsage) DeepCopy() *DeviceUsage { _ = "STUB: not implemented"; return nil }
 
-	if d.MigTemplate != nil {
-		dup.MigTemplate = make([]Geometry, len(d.MigTemplate))
-		for i, g := range d.MigTemplate {
-			dup.MigTemplate[i] = make(Geometry, len(g))
-			copy(dup.MigTemplate[i], g)
-		}
-	}
+func (m MigInUse) DeepCopy() MigInUse { _ = "STUB: not implemented"; return *new(MigInUse) }
 
-	dup.MigUsage = d.MigUsage.DeepCopy()
-
-	if d.PodInfos != nil {
-		dup.PodInfos = make([]*PodInfo, len(d.PodInfos))
-		for i, pi := range d.PodInfos {
-			dup.PodInfos[i] = pi.DeepCopy()
-		}
-	}
-
-	if d.CustomInfo != nil {
-		dup.CustomInfo = make(map[string]any, len(d.CustomInfo))
-		maps.Copy(dup.CustomInfo, d.CustomInfo)
-	}
-
-	return dup
-}
-
-func (m MigInUse) DeepCopy() MigInUse {
-	var usageList MIGS
-	if m.UsageList != nil {
-		usageList = make(MIGS, len(m.UsageList))
-		copy(usageList, m.UsageList)
-	}
-	return MigInUse{
-		Index:     m.Index,
-		UsageList: usageList,
-	}
-}
-
-func GetDevices() map[string]Devices {
-	return DevicesMap
-}
+func GetDevices() map[string]Devices { _ = "STUB: not implemented"; return nil }
 
 func DecodeNodeDevices(str string) ([]*DeviceInfo, error) {
-	if !strings.Contains(str, OneContainerMultiDeviceSplitSymbol) {
-		return nil, fmt.Errorf("node annotation missing device separator")
-	}
-	tmp := strings.Split(str, OneContainerMultiDeviceSplitSymbol)
-	var retval []*DeviceInfo
-	for _, val := range tmp {
-		if val == "" {
-			continue
-		}
-		if !strings.Contains(val, ",") {
-			return nil, fmt.Errorf("malformed node annotation segment: %q", val)
-		}
-		items := strings.Split(val, ",")
-		if len(items) == 7 || len(items) == 9 {
-			count, err := strconv.ParseInt(items[1], 10, 32)
-			if err != nil {
-				return nil, fmt.Errorf("invalid count field: %w", err)
-			}
-			devmem, err := strconv.ParseInt(items[2], 10, 32)
-			if err != nil {
-				return nil, fmt.Errorf("invalid memory field: %w", err)
-			}
-			devcore, err := strconv.ParseInt(items[3], 10, 32)
-			if err != nil {
-				return nil, fmt.Errorf("invalid core field: %w", err)
-			}
-			health, err := strconv.ParseBool(items[6])
-			if err != nil {
-				return nil, fmt.Errorf("invalid health field: %w", err)
-			}
-			numa, err := strconv.Atoi(items[5])
-			if err != nil {
-				return nil, fmt.Errorf("invalid numa field: %w", err)
-			}
-			mode := "hami-core"
-			index := 0
-			if len(items) == 9 {
-				index, err = strconv.Atoi(items[7])
-				if err != nil {
-					return nil, fmt.Errorf("invalid index field: %w", err)
-				}
-				if index < 0 {
-					return nil, fmt.Errorf("index field must not be negative: %d", index)
-				}
-				mode = items[8]
-			}
-			i := DeviceInfo{
-				ID:      items[0],
-				Count:   int32(count),
-				Devmem:  int32(devmem),
-				Devcore: int32(devcore),
-				Type:    items[4],
-				Numa:    numa,
-				Health:  health,
-				Mode:    mode,
-				Index:   uint(index),
-			}
-			retval = append(retval, &i)
-		} else {
-			return nil, fmt.Errorf("unexpected field count %d in node annotation", len(items))
-		}
-	}
-	return retval, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 func DecodePairScores(pairScores string) (*DevicePairScores, error) {
-	devicePairScores := &DevicePairScores{}
-	if err := json.Unmarshal([]byte(pairScores), devicePairScores); err != nil {
-		return nil, err
-	}
-	return devicePairScores, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
-func EncodeNodeDevices(dlist []*DeviceInfo) string {
-	builder := strings.Builder{}
-	for _, val := range dlist {
-		builder.WriteString(val.ID)
-		builder.WriteString(",")
-		builder.WriteString(strconv.FormatInt(int64(val.Count), 10))
-		builder.WriteString(",")
-		builder.WriteString(strconv.Itoa(int(val.Devmem)))
-		builder.WriteString(",")
-		builder.WriteString(strconv.Itoa(int(val.Devcore)))
-		builder.WriteString(",")
-		builder.WriteString(val.Type)
-		builder.WriteString(",")
-		builder.WriteString(strconv.Itoa(val.Numa))
-		builder.WriteString(",")
-		builder.WriteString(strconv.FormatBool(val.Health))
-		builder.WriteString(",")
-		builder.WriteString(strconv.Itoa(int(val.Index)))
-		builder.WriteString(",")
-		builder.WriteString(val.Mode)
-		builder.WriteString(OneContainerMultiDeviceSplitSymbol)
-		//tmp += val.ID + "," + strconv.FormatInt(int64(val.Count), 10) + "," + strconv.Itoa(int(val.Devmem)) + "," + strconv.Itoa(int(val.Devcore)) + "," + val.Type + "," + strconv.Itoa(val.Numa) + "," + strconv.FormatBool(val.Health) + "," + strconv.Itoa(val.Index) + OneContainerMultiDeviceSplitSymbol
-	}
-	tmp := builder.String()
-	klog.V(5).Infof("Encoded node Devices: %s", tmp)
-	return tmp
-}
+func EncodeNodeDevices(dlist []*DeviceInfo) string { _ = "STUB: not implemented"; return "" }
+
+//tmp += val.ID + "," + strconv.FormatInt(int64(val.Count), 10) + "," + strconv.Itoa(int(val.Devmem)) + "," + strconv.Itoa(int(val.Devcore)) + "," + val.Type + "," + strconv.Itoa(val.Numa) + "," + strconv.FormatBool(val.Health) + "," + strconv.Itoa(val.Index) + OneContainerMultiDeviceSplitSymbol
 
 // MarshalNodeDevices will only marshal general information, customInfo is neglected.
-func MarshalNodeDevices(dlist []*DeviceInfo) string {
-	devAnnos := []*DeviceInfo{}
-	for _, val := range dlist {
-		devAnnos = append(devAnnos, &DeviceInfo{
-			ID:      val.ID,
-			Count:   val.Count,
-			Devmem:  val.Devmem,
-			Devcore: val.Devcore,
-			Type:    val.Type,
-			Numa:    val.Numa,
-			Health:  val.Health,
-			Index:   val.Index,
-			Mode:    val.Mode,
-		})
-	}
-	data, err := json.Marshal(devAnnos)
-	if err != nil {
-		return ""
-	}
-	return string(data)
-}
+func MarshalNodeDevices(dlist []*DeviceInfo) string { _ = "STUB: not implemented"; return "" }
 
 func UnMarshalNodeDevices(str string) ([]*DeviceInfo, error) {
-	var dlist []*DeviceInfo
-	err := json.Unmarshal([]byte(str), &dlist)
-	return dlist, err
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
-func EncodeContainerDevices(cd ContainerDevices) string {
-	var builder strings.Builder
-	for _, val := range cd {
-		fmt.Fprintf(&builder, "%s,%s,%d,%d%s", val.UUID, val.Type, val.Usedmem, val.Usedcores, OneContainerMultiDeviceSplitSymbol)
-	}
-	tmp := builder.String()
-	klog.Infof("Encoded container Devices: %s", tmp)
-	return tmp
-}
+func EncodeContainerDevices(cd ContainerDevices) string { _ = "STUB: not implemented"; return "" }
 
 func EncodeContainerDeviceType(cd ContainerDevices, t string) string {
-	var builder strings.Builder
-	for _, val := range cd {
-		if val.Type == t {
-			if builder.Len() > 0 {
-				builder.WriteString(OneContainerMultiDeviceSplitSymbol)
-			}
-			fmt.Fprintf(&builder, "%s,%s,%d,%d", val.UUID, val.Type, val.Usedmem, val.Usedcores)
-		}
-	}
-	tmp := builder.String()
-	klog.Infof("Encoded container Certain Device type: %s->%s", t, tmp)
-	return tmp
+	_ = "STUB: not implemented"
+	return ""
 }
 
-func EncodePodSingleDevice(pd PodSingleDevice) string {
-	res := ""
-	for _, ctrdevs := range pd {
-		res = res + EncodeContainerDevices(ctrdevs)
-		res = res + OnePodMultiContainerSplitSymbol
-	}
-	klog.Infof("Encoded pod single devices %s", res)
-	return res
-}
+func EncodePodSingleDevice(pd PodSingleDevice) string { _ = "STUB: not implemented"; return "" }
 
 func EncodePodDevices(checklist map[string]string, pd PodDevices) map[string]string {
-	res := map[string]string{}
-	for devType, cd := range pd {
-		klog.Infoln("devtype=", devType)
-		res[checklist[devType]] = EncodePodSingleDevice(cd)
-	}
-	klog.Infof("Encoded pod Devices %s\n", res)
-	return res
+	_ = "STUB: not implemented"
+	return nil
 }
 
 func DecodeContainerDevices(str string) (ContainerDevices, error) {
-	if len(str) == 0 {
-		return ContainerDevices{}, nil
-	}
-	cd := strings.Split(str, OneContainerMultiDeviceSplitSymbol)
-	contdev := ContainerDevices{}
-	tmpdev := ContainerDevice{}
-	klog.V(5).Infof("Start to decode container device %s", str)
-	for _, val := range cd {
-		if strings.Contains(val, ",") {
-			tmpstr := strings.Split(val, ",")
-			if len(tmpstr) < 4 {
-				return nil, fmt.Errorf("pod annotation format error, missing fields, do not use nodeName in task spec")
-			}
-			tmpdev.UUID = tmpstr[0]
-			tmpdev.Type = tmpstr[1]
-			devmem, err := strconv.ParseInt(tmpstr[2], 10, 32)
-			if err != nil {
-				return nil, fmt.Errorf("invalid memory field: %w", err)
-			}
-			tmpdev.Usedmem = int32(devmem)
-			devcores, err := strconv.ParseInt(tmpstr[3], 10, 32)
-			if err != nil {
-				return nil, fmt.Errorf("invalid core field: %w", err)
-			}
-			tmpdev.Usedcores = int32(devcores)
-			contdev = append(contdev, tmpdev)
-		}
-	}
-	klog.V(5).Infof("Finished decoding container devices. Total devices: %d", len(contdev))
-	return contdev, nil
+	_ = "STUB: not implemented"
+	return *new(ContainerDevices), nil
 }
 
 func DecodePodDevices(checklist map[string]string, annos map[string]string) (PodDevices, error) {
-	klog.V(5).Infof("checklist is [%+v], annos is [%+v]", checklist, annos)
-	if len(annos) == 0 {
-		return PodDevices{}, nil
-	}
-	pd := make(PodDevices)
-	for devID, devs := range checklist {
-		str, ok := annos[devs]
-		if !ok {
-			continue
-		}
-		pd[devID] = make(PodSingleDevice, 0)
-		for s := range strings.SplitSeq(str, OnePodMultiContainerSplitSymbol) {
-			cd, err := DecodeContainerDevices(s)
-			if err != nil {
-				return PodDevices{}, err
-			}
-			// IMPORTANT: Do NOT skip empty ContainerDevices!
-			// We must preserve the index mapping between annotation entries and pod containers.
-			// The annotation format is: "dev1:;dev2:;;dev3:;" where ; separates containers
-			// If we skip empty entries, the index mapping will be broken for multi-container pods
-			// (especially pods with init containers where some containers don't use devices)
-			pd[devID] = append(pd[devID], cd)
-		}
-	}
-	klog.V(5).InfoS("Decoded pod annos", "poddevices", pd)
-	return pd, nil
+	_ = "STUB: not implemented"
+	return *new(PodDevices), nil
 }
+
+// IMPORTANT: Do NOT skip empty ContainerDevices!
+// We must preserve the index mapping between annotation entries and pod containers.
+// The annotation format is: "dev1:;dev2:;;dev3:;" where ; separates containers
+// If we skip empty entries, the index mapping will be broken for multi-container pods
+// (especially pods with init containers where some containers don't use devices)
 
 func PlatternMIG(n *MigInUse, templates []Geometry, templateIdx int) {
-	var err error
-	for _, val := range templates[templateIdx] {
-		count := 0
-		for count < int(val.Count) {
-			n.Index, err = safecast.Convert[int32](templateIdx)
-			if err != nil {
-				continue
-			}
-			n.UsageList = append(n.UsageList, MigTemplateUsage{
-				Name:   val.Name,
-				Memory: val.Memory,
-				Core:   val.Core,
-				InUse:  false,
-			})
-			count++
-		}
-	}
+	_ = "STUB: not implemented"
+	return
 }
 
-func GetDevicesUUIDList(infos []*DeviceInfo) []string {
-	uuids := make([]string, 0)
-	for _, info := range infos {
-		uuids = append(uuids, info.ID)
-	}
-	return uuids
-}
+func GetDevicesUUIDList(infos []*DeviceInfo) []string { _ = "STUB: not implemented"; return nil }
 
 func CheckHealth(devType string, resourceCountName string, node *corev1.Node) (bool, bool) {
-	handshake := node.Annotations[util.HandshakeAnnos[devType]]
-	if strings.Contains(handshake, "Requesting") {
-		formertime, _ := time.ParseInLocation(time.DateTime, strings.Split(handshake, "_")[1], time.Local)
-		if time.Now().Before(formertime.Add(time.Second * 60)) {
-			return true, false
-		}
-
-		qty := node.Status.Allocatable[corev1.ResourceName(resourceCountName)]
-		if qty.Value() > 0 {
-			klog.V(5).InfoS("Handshake expired but Allocatable still present, skipping NodeCleanUp", "nodeName", node.Name, "resource", resourceCountName)
-			return true, false
-		}
-		return false, false
-	} else if strings.Contains(handshake, "Deleted") {
-		// Mirror the timestamp logic used by the Requesting branch: a
-		// Deleted_<ts> older than 60s on a node whose devices are otherwise
-		// reporting healthy means the previous cleanup is stale and the
-		// scheduler should bring the node back into its cache. Stamp
-		// Requesting_<now> and return (true, true) so the caller re-adds
-		// node devices on the next reconcile.
-		//
-		// Bare "Deleted" without a timestamp (used in some unit tests) and
-		// any unparsable timestamp must keep the conservative (true, false)
-		// path so we never recover from a malformed value.
-		annoKey, ok := util.HandshakeAnnos[devType]
-		if !ok {
-			return true, false
-		}
-		parts := strings.SplitN(handshake, "_", 2)
-		if len(parts) < 2 {
-			return true, false
-		}
-		formerTime, err := time.ParseInLocation(time.DateTime, parts[1], time.Local)
-		if err != nil {
-			return true, false
-		}
-		now := time.Now()
-		if now.Before(formerTime.Add(time.Second * 60)) {
-			return true, false
-		}
-		newHandshake := "Requesting_" + now.Format(time.DateTime)
-		tmppat := map[string]string{annoKey: newHandshake}
-		klog.V(5).InfoS("Recovering stale Deleted_ handshake", "nodeName", node.Name, "annotationKey", annoKey, "annotationValue", newHandshake)
-		// Mirror the empty-annotation branch: GetNode also acts as a guard
-		// for an empty node.Name and an uninitialised client (PatchNodeAnnotations
-		// panics in unit tests without it). Worth a follow-up to dedupe with
-		// the else branch into a helper.
-		n, err := util.GetNode(node.Name)
-		if err != nil {
-			klog.ErrorS(err, "Failed to get node", "nodeName", node.Name)
-			return true, false
-		}
-		if err := util.PatchNodeAnnotations(n, tmppat); err != nil {
-			klog.ErrorS(err, "Failed to patch node annotations", "nodeName", node.Name)
-		}
-		return true, true
-	} else {
-		_, ok := util.HandshakeAnnos[devType]
-		if ok {
-			tmppat := make(map[string]string)
-			tmppat[util.HandshakeAnnos[devType]] = "Requesting_" + time.Now().Format(time.DateTime)
-			klog.V(5).InfoS("New timestamp for annotation", "nodeName", node.Name, "annotationKey", util.HandshakeAnnos[devType], "annotationValue", tmppat[util.HandshakeAnnos[devType]])
-			n, err := util.GetNode(node.Name)
-			if err != nil {
-				klog.ErrorS(err, "Failed to get node", "nodeName", node.Name)
-				return true, false
-			}
-			klog.V(5).InfoS("Patching node annotations", "nodeName", node.Name, "annotations", tmppat)
-			if err := util.PatchNodeAnnotations(n, tmppat); err != nil {
-				klog.ErrorS(err, "Failed to patch node annotations", "nodeName", node.Name)
-			}
-		}
-		return true, true
-	}
+	_ = "STUB: not implemented"
+	return false, false
 }
+
+// Mirror the timestamp logic used by the Requesting branch: a
+// Deleted_<ts> older than 60s on a node whose devices are otherwise
+// reporting healthy means the previous cleanup is stale and the
+// scheduler should bring the node back into its cache. Stamp
+// Requesting_<now> and return (true, true) so the caller re-adds
+// node devices on the next reconcile.
+//
+// Bare "Deleted" without a timestamp (used in some unit tests) and
+// any unparsable timestamp must keep the conservative (true, false)
+// path so we never recover from a malformed value.
+
+// Mirror the empty-annotation branch: GetNode also acts as a guard
+// for an empty node.Name and an uninitialised client (PatchNodeAnnotations
+// panics in unit tests without it). Worth a follow-up to dedupe with
+// the else branch into a helper.
 
 // Enhanced ExtractMigTemplatesFromUUID with error handling.
 func ExtractMigTemplatesFromUUID(uuid string) (int, int, error) {
-	parts := strings.Split(uuid, "[")
-	if len(parts) < 2 {
-		return -1, -1, fmt.Errorf("invalid UUID format: missing '[' delimiter")
-	}
-
-	tmp := parts[1]
-	parts = strings.Split(tmp, "]")
-	if len(parts) < 2 {
-		return -1, -1, fmt.Errorf("invalid UUID format: missing ']' delimiter")
-	}
-
-	tmp = parts[0]
-	parts = strings.Split(tmp, "-")
-	if len(parts) < 2 {
-		return -1, -1, fmt.Errorf("invalid UUID format: missing '-' delimiter")
-	}
-
-	templateIdx, err := strconv.Atoi(parts[0])
-	if err != nil {
-		return -1, -1, fmt.Errorf("invalid template index: %v", err)
-	}
-
-	pos, err := strconv.Atoi(parts[1])
-	if err != nil {
-		return -1, -1, fmt.Errorf("invalid position: %v", err)
-	}
-
-	return templateIdx, pos, nil
+	_ = "STUB: not implemented"
+	return 0, 0, nil
 }
 
 func Resourcereqs(pod *corev1.Pod) (counts PodDeviceRequests) {
+	_ = "STUB: not implemented"
 	// Total containers = init containers + regular containers
-	totalContainers := len(pod.Spec.InitContainers) + len(pod.Spec.Containers)
-	counts = make(PodDeviceRequests, totalContainers)
-	klog.V(4).InfoS("Processing resource requirements",
-		"pod", klog.KObj(pod),
-		"initContainerCount", len(pod.Spec.InitContainers),
-		"containerCount", len(pod.Spec.Containers),
-		"totalContainers", totalContainers)
-	//Count Nvidia GPU
-	cnt := int32(0)
-
-	// Process init containers first (indices 0 to len(InitContainers)-1)
-	for i := range pod.Spec.InitContainers {
-		devices := GetDevices()
-		counts[i] = make(ContainerDeviceRequests)
-		klog.V(5).InfoS("Processing init container resources",
-			"pod", klog.KObj(pod),
-			"containerIndex", i,
-			"containerName", pod.Spec.InitContainers[i].Name)
-		for idx, val := range devices {
-			request := val.GenerateResourceRequests(&pod.Spec.InitContainers[i])
-			if request.Nums > 0 {
-				cnt += request.Nums
-				counts[i][idx] = request
-			}
-		}
-	}
-
-	// Process regular containers (indices len(InitContainers) to totalContainers-1)
-	initContainerOffset := len(pod.Spec.InitContainers)
-	for i := range pod.Spec.Containers {
-		devices := GetDevices()
-		counts[initContainerOffset+i] = make(ContainerDeviceRequests)
-		klog.V(5).InfoS("Processing container resources",
-			"pod", klog.KObj(pod),
-			"containerIndex", initContainerOffset+i,
-			"containerName", pod.Spec.Containers[i].Name)
-		for idx, val := range devices {
-			request := val.GenerateResourceRequests(&pod.Spec.Containers[i])
-			if request.Nums > 0 {
-				cnt += request.Nums
-				counts[initContainerOffset+i][idx] = request
-			}
-		}
-	}
-	if cnt == 0 {
-		klog.V(4).InfoS("No device requests found", "pod", klog.KObj(pod))
-	} else {
-		klog.V(4).InfoS("Resource requirements collected", "pod", klog.KObj(pod), "requests", counts)
-	}
-	return counts
+	return *new(PodDeviceRequests)
 }
+
+//Count Nvidia GPU
+
+// Process init containers first (indices 0 to len(InitContainers)-1)
+
+// Process regular containers (indices len(InitContainers) to totalContainers-1)
 
 func CheckUUID(annos map[string]string, id, useKey, noUseKey, deviceType string) bool {
-	userUUID, ok := annos[useKey]
-	if ok {
-		klog.V(5).Infof("check uuid for %s user uuid [%s], device id is %s", deviceType, userUUID, id)
-		// use , symbol to connect multiple uuid
-		userUUIDs := strings.Split(userUUID, ",")
-		return slices.Contains(userUUIDs, id)
-	}
-
-	noUserUUID, ok := annos[noUseKey]
-	if ok {
-		klog.V(5).Infof("check uuid for %s not user uuid [%s], device id is %s", deviceType, noUserUUID, id)
-		// use , symbol to connect multiple uuid
-		noUserUUIDs := strings.Split(noUserUUID, ",")
-		return !slices.Contains(noUserUUIDs, id)
-	}
-	return true
+	_ = "STUB: not implemented"
+	return false
 }
+
+// use , symbol to connect multiple uuid
+
+// use , symbol to connect multiple uuid

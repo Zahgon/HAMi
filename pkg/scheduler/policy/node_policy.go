@@ -18,10 +18,8 @@ package policy
 
 import (
 	"github.com/Project-HAMi/HAMi/pkg/device"
-	"github.com/Project-HAMi/HAMi/pkg/util"
 
 	corev1 "k8s.io/api/core/v1"
-	"k8s.io/klog/v2"
 )
 
 type NodeScore struct {
@@ -37,63 +35,26 @@ type NodeScoreList struct {
 	Policy   string
 }
 
-func (l NodeScoreList) Len() int {
-	return len(l.NodeList)
-}
+func (l NodeScoreList) Len() int { _ = "STUB: not implemented"; return 0 }
 
-func (l NodeScoreList) Swap(i, j int) {
-	l.NodeList[i], l.NodeList[j] = l.NodeList[j], l.NodeList[i]
-}
+func (l NodeScoreList) Swap(i, j int) { _ = "STUB: not implemented"; return }
 
-func (l NodeScoreList) Less(i, j int) bool {
-	if l.Policy == util.NodeSchedulerPolicySpread.String() {
-		return l.NodeList[i].Score > l.NodeList[j].Score
-	}
-	// default policy is Binpack
-	return l.NodeList[i].Score < l.NodeList[j].Score
-}
+func (l NodeScoreList) Less(i, j int) bool { _ = "STUB: not implemented"; return false }
+
+// default policy is Binpack
 
 func (ns *NodeScore) OverrideScore(previous []*device.DeviceUsage, policy string) {
+	_ = "STUB: not implemented"
 	// current user having request resource
-	devScore := float32(0)
-	for idx, val := range ns.Devices {
-		devScore += device.GetDevices()[idx].ScoreNode(ns.Node, val, previous, policy)
-	}
-	ns.Score += devScore
-	klog.V(2).Infof("node %s default score is %f, computer override score is %f", ns.NodeID, ns.Score-devScore, ns.Score)
+	return
 }
 
 func (ns *NodeScore) SnapshotDevice(devices DeviceUsageList) []*device.DeviceUsage {
-	snapshot := []*device.DeviceUsage{}
-	for _, val := range devices.DeviceLists {
-		tmp := *val.Device
-		snapshot = append(snapshot, &tmp)
-	}
-	return snapshot
+	_ = "STUB: not implemented"
+	return nil
 }
 
 func (ns *NodeScore) ComputeDefaultScore(devices DeviceUsageList) {
-	used, usedCore, usedMem := int32(0), int32(0), int32(0)
-	for _, device := range devices.DeviceLists {
-		used += device.Device.Used
-		usedCore += device.Device.Usedcores
-		usedMem += device.Device.Usedmem
-	}
-	klog.V(2).Infof("node %s used %d, usedCore %d, usedMem %d,", ns.NodeID, used, usedCore, usedMem)
-
-	total, totalCore, totalMem := int32(0), int32(0), int32(0)
-	for _, deviceLists := range devices.DeviceLists {
-		total += deviceLists.Device.Count
-		totalCore += deviceLists.Device.Totalcore
-		totalMem += deviceLists.Device.Totalmem
-	}
-	if total == 0 || totalCore == 0 || totalMem == 0 {
-		ns.Score = 0
-		return
-	}
-	useScore := float32(used) / float32(total)
-	coreScore := float32(usedCore) / float32(totalCore)
-	memScore := float32(usedMem) / float32(totalMem)
-	ns.Score = float32(util.Weight) * (useScore + coreScore + memScore)
-	klog.V(2).Infof("node %s computer default score is %f", ns.NodeID, ns.Score)
+	_ = "STUB: not implemented"
+	return
 }

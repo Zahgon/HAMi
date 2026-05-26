@@ -37,26 +37,23 @@ type wslDevice nvmlDevice
 var _ deviceInfo = (*wslDevice)(nil)
 
 // GetUUID returns the UUID of the device
-func (d wslDevice) GetUUID() (string, error) {
-	return nvmlDevice(d).GetUUID()
-}
+func (d wslDevice) GetUUID() (string, error) { _ = "STUB: not implemented"; return "", nil }
 
 // GetPaths returns the paths for a tegra device.
-func (d wslDevice) GetPaths() ([]string, error) {
-	return []string{"/dev/dxg"}, nil
-}
+func (d wslDevice) GetPaths() ([]string, error) { _ = "STUB: not implemented"; return nil, nil }
 
 // GetNumaNode returns the NUMA node associated with the GPU device
 func (d wslDevice) GetNumaNode() (bool, int, error) {
-	return nvmlDevice(d).GetNumaNode()
+	_ = "STUB: not implemented"
+	return false, 0, nil
+
+	// GetTotalMemory returns the total memory available on the device.
 }
 
-// GetTotalMemory returns the total memory available on the device.
-func (d wslDevice) GetTotalMemory() (uint64, error) {
-	return nvmlDevice(d).GetTotalMemory()
-}
+func (d wslDevice) GetTotalMemory() (uint64, error) { _ = "STUB: not implemented"; return 0, nil }
 
 // GetComputeCapability returns the CUDA compute capability for the device.
 func (d wslDevice) GetComputeCapability() (string, error) {
-	return nvmlDevice(d).GetComputeCapability()
+	_ = "STUB: not implemented"
+	return "", nil
 }

@@ -18,19 +18,10 @@ package awsneuron
 
 import (
 	"flag"
-	"fmt"
-	"slices"
-	"strconv"
-	"strings"
-	"time"
 
 	"github.com/Project-HAMi/HAMi/pkg/device"
-	"github.com/Project-HAMi/HAMi/pkg/device/common"
-	"github.com/Project-HAMi/HAMi/pkg/util"
 
 	corev1 "k8s.io/api/core/v1"
-	"k8s.io/apimachinery/pkg/api/resource"
-	"k8s.io/klog/v2"
 )
 
 type AWSNeuronDevices struct {
@@ -61,394 +52,93 @@ type AWSNeuronConfig struct {
 }
 
 func InitAWSNeuronDevice(config AWSNeuronConfig) *AWSNeuronDevices {
-	_, ok := device.SupportDevices[AWSNeuronDevice]
-	if !ok {
-		device.SupportDevices[AWSNeuronDevice] = "hami.io/aws-neuron-devices-allocated"
-	}
-	return &AWSNeuronDevices{
-		resourceCountName: config.ResourceCountName,
-		resourceCoreName:  config.ResourceCoreName,
-		coresPerAWSNeuron: 0,
-		coremask:          0,
-	}
+	_ = "STUB: not implemented"
+	return nil
 }
 
-func (dev *AWSNeuronDevices) CommonWord() string {
-	return AWSNeuronCommonWord
-}
+func (dev *AWSNeuronDevices) CommonWord() string { _ = "STUB: not implemented"; return "" }
 
-func ParseConfig(fs *flag.FlagSet) {
-}
+func ParseConfig(fs *flag.FlagSet) { _ = "STUB: not implemented"; return }
 
 func (dev *AWSNeuronDevices) MutateAdmission(ctr *corev1.Container, p *corev1.Pod) (bool, error) {
-	_, ok := ctr.Resources.Limits[corev1.ResourceName(dev.resourceCountName)]
-	if !ok {
-		_, ok = ctr.Resources.Limits[corev1.ResourceName(dev.resourceCoreName)]
-	}
-	return ok, nil
+	_ = "STUB: not implemented"
+	return false, nil
 }
 
 func (dev *AWSNeuronDevices) GetNodeDevices(n corev1.Node) ([]*device.DeviceInfo, error) {
-	nodedevices := []*device.DeviceInfo{}
-	i := 0
-	counts, ok := n.Status.Capacity.Name(corev1.ResourceName(dev.resourceCountName), resource.DecimalSI).AsInt64()
-	if !ok || counts == 0 {
-		return []*device.DeviceInfo{}, fmt.Errorf("device not found %s", dev.resourceCountName)
-	}
-	coresTotal, _ := n.Status.Capacity.Name(corev1.ResourceName(dev.resourceCoreName), resource.DecimalSI).AsInt64()
-	if dev.coresPerAWSNeuron == 0 {
-		dev.coresPerAWSNeuron = uint(coresTotal) / uint(counts)
-	}
-	dev.coremask = 0
-	for i < int(dev.coresPerAWSNeuron) {
-		dev.coremask *= 2
-		dev.coremask++
-		i++
-	}
-	i = 0
-	customInfo := map[string]any{}
-	customInfo[AWSNodeType] = n.Labels["node.kubernetes.io/instance-type"]
-
-	for int64(i) < counts {
-		nodedevices = append(nodedevices, &device.DeviceInfo{
-			Index:        uint(i),
-			ID:           n.Name + "-" + AWSNeuronDevice + "-" + fmt.Sprint(i),
-			Count:        int32(dev.coresPerAWSNeuron),
-			Devmem:       0,
-			Devcore:      int32(dev.coremask),
-			Type:         AWSNeuronDevice,
-			Numa:         0,
-			Health:       true,
-			CustomInfo:   customInfo,
-			DeviceVendor: AWSNeuronCommonWord,
-		})
-		i++
-	}
-	i = 0
-	for i < len(nodedevices) {
-		klog.V(4).Infoln("Registered AWS nodedevices:", nodedevices[i])
-		i++
-	}
-	return nodedevices, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 func (dev *AWSNeuronDevices) PatchAnnotations(pod *corev1.Pod, annoinput *map[string]string, pd device.PodDevices) map[string]string {
-	devlist, ok := pd[AWSNeuronDevice]
-	if ok && len(devlist) > 0 {
-		(*annoinput)[device.SupportDevices[AWSNeuronDevice]] = device.EncodePodSingleDevice(devlist)
-		value := ""
-		for ctridx, dp := range devlist {
-			if len(dp) > 0 {
-				for _, val := range dp {
-					devValue, ok := pod.Spec.Containers[ctridx].Resources.Limits[corev1.ResourceName(dev.resourceCountName)]
-					if ok {
-						c, _ := devValue.AsInt64()
-						if c > 0 {
-							value = value + fmt.Sprint(val.Idx) + ","
-						}
-					} else {
-						if (val.Usedcores & 1) != 0 {
-							value = value + fmt.Sprint(dev.coresPerAWSNeuron*uint(val.Idx)) + ","
-							(*annoinput)[AWSNeuronResourceType] = dev.resourceCoreName
-						}
-						if (val.Usedcores & 2) != 0 {
-							value = value + fmt.Sprint(dev.coresPerAWSNeuron*uint(val.Idx)+1) + ","
-							(*annoinput)[AWSNeuronResourceType] = dev.resourceCoreName
-						}
-					}
-				}
-				if len(value) > 0 {
-					// This needs to modify, it has to be core indexes?
-					(*annoinput)[AWSNeuronAssignedIndex] = strings.TrimRight(value, ",")
-
-					tmp := strconv.FormatInt(time.Now().UnixNano(), 10)
-					(*annoinput)[AWSNeuronPredicateTime] = tmp
-					(*annoinput)[AWSNeuronAllocated] = "false"
-					(*annoinput)[AWSNeuronAssignedNode] = (*annoinput)[util.AssignedNodeAnnotations]
-				}
-			}
-		}
-	}
-	klog.V(4).InfoS("annos", "input", (*annoinput))
-	return *annoinput
+	_ = "STUB: not implemented"
+	return nil
 }
 
+// This needs to modify, it has to be core indexes?
+
 func (dev *AWSNeuronDevices) LockNode(n *corev1.Node, p *corev1.Pod) error {
+	_ = "STUB: not implemented"
 	return nil
 }
 
 func (dev *AWSNeuronDevices) ReleaseNodeLock(n *corev1.Node, p *corev1.Pod) error {
+	_ = "STUB: not implemented"
 	return nil
 }
 
-func (dev *AWSNeuronDevices) NodeCleanUp(nn string) error {
-	return nil
-}
+func (dev *AWSNeuronDevices) NodeCleanUp(nn string) error { _ = "STUB: not implemented"; return nil }
 
 func (dev *AWSNeuronDevices) checkType(n device.ContainerDeviceRequest) (bool, bool, bool) {
-	if strings.Compare(n.Type, AWSNeuronDevice) == 0 {
-		return true, true, false
-	}
+	_ = "STUB: not implemented"
 	return false, false, false
 }
 
 func (dev *AWSNeuronDevices) CheckHealth(devType string, n *corev1.Node) (bool, bool) {
-	return true, true
+	_ = "STUB: not implemented"
+	return false, false
 }
 
 func (dev *AWSNeuronDevices) GetResourceNames() device.ResourceNames {
-	return device.ResourceNames{
-		ResourceCountName:  dev.resourceCountName,
-		ResourceMemoryName: "",
-		ResourceCoreName:   dev.resourceCoreName,
-	}
+	_ = "STUB: not implemented"
+	return *new(device.ResourceNames)
 }
 
 func (dev *AWSNeuronDevices) GenerateResourceRequests(ctr *corev1.Container) device.ContainerDeviceRequest {
-	klog.Info("Start to count awsNeuron devices for container ", ctr.Name)
-	awsResourceCount := corev1.ResourceName(dev.resourceCountName)
-	awsResourceCores := corev1.ResourceName(dev.resourceCoreName)
-	v, ok := ctr.Resources.Limits[awsResourceCount]
-	if !ok {
-		v, ok = ctr.Resources.Requests[awsResourceCount]
-	}
-	if ok {
-		if n, ok := v.AsInt64(); ok {
-			klog.InfoS("Detected awsNeuron device request",
-				"container", ctr.Name,
-				"deviceCount", n)
-			return device.ContainerDeviceRequest{
-				Nums:             int32(n),
-				Type:             AWSNeuronDevice,
-				Memreq:           0,
-				MemPercentagereq: 0,
-				Coresreq:         int32(dev.coresPerAWSNeuron),
-			}
-		}
-	} else {
-		core, ok := ctr.Resources.Limits[awsResourceCores]
-		if !ok {
-			core, ok = ctr.Resources.Requests[awsResourceCores]
-		}
-		if ok {
-			if n, ok := core.AsInt64(); ok {
-				klog.InfoS("Detected awsNeuron device request",
-					"container", ctr.Name,
-					"deviceCores", n)
-				num := 1
-				if n >= 2 {
-					num = int(n / 2)
-				}
-				corenum := 1
-				if n >= 2 {
-					corenum = 2
-				}
-				return device.ContainerDeviceRequest{
-					Nums:             int32(num),
-					Type:             AWSNeuronDevice,
-					Memreq:           0,
-					MemPercentagereq: 0,
-					Coresreq:         int32(corenum),
-				}
-			}
-		}
-	}
-	return device.ContainerDeviceRequest{}
+	_ = "STUB: not implemented"
+	return *new(device.ContainerDeviceRequest)
 }
 
 func (dev *AWSNeuronDevices) ScoreNode(node *corev1.Node, podDevices device.PodSingleDevice, previous []*device.DeviceUsage, policy string) float32 {
+	_ = "STUB: not implemented"
 	return 0
 }
 
 func (dev *AWSNeuronDevices) AddResourceUsage(pod *corev1.Pod, n *device.DeviceUsage, ctr *device.ContainerDevice) error {
-	n.Used++
-	n.Usedcores += ctr.Usedcores
-	n.Usedmem += ctr.Usedmem
-
-	num, ok := n.CustomInfo[AWSUsageInfo]
-	if !ok || num == nil {
-		n.CustomInfo[AWSUsageInfo] = 0
-	}
-	if nValue, ok := n.CustomInfo[AWSUsageInfo].(int); ok {
-		if ctrValue, ok2 := ctr.CustomInfo[AWSUsageInfo].(int); ok2 {
-			n.CustomInfo[AWSUsageInfo] = nValue + ctrValue
-		}
-	}
+	_ = "STUB: not implemented"
 	return nil
 }
 
-func countMaskAvailable(mask int32) int32 {
-	tmp := mask
-	ret := int32(0)
-	for tmp > 0 {
-		ret = ret + tmp%2
-		tmp /= 2
-	}
-	return ret
-}
+func countMaskAvailable(mask int32) int32 { _ = "STUB: not implemented"; return 0 }
 
 func addCoreUsage(prev map[string]any, require int) map[string]any {
-	res := map[string]any{}
-	count, ok := prev[AWSUsageInfo]
-	if !ok {
-		count = 0
-	}
-	if count == 0 {
-		if require == 2 {
-			res[AWSUsageInfo] = 3
-			return res
-		}
-		if require == 1 {
-			res[AWSUsageInfo] = 1
-			return res
-		}
-	}
-	if countValue, ok := count.(int); ok {
-		res[AWSUsageInfo] = 3 - countValue
-	} else {
-		res[AWSUsageInfo] = 3
-	}
-	return res
+	_ = "STUB: not implemented"
+	return nil
 }
+
 func continuousDeviceAvailable(devices []*device.DeviceUsage, start int, count int) []int {
-	if len(devices) < start+count {
-		return []int{}
-	}
-	res := []int{}
-	iterator := start
-	for iterator < start+count {
-		if devices[iterator].Used > 0 {
-			return []int{}
-		}
-		res = append(res, iterator)
-		iterator++
-	}
-	return res
+	_ = "STUB: not implemented"
+	return nil
 }
 
 func graphSelect(devices []*device.DeviceUsage, count int) []int {
-	if len(devices) == 0 || devices[0].CustomInfo == nil || devices[0].CustomInfo[AWSNodeType] == nil {
-		return []int{}
-	}
-	AWSNodetype := ""
-	if nodeType, ok := devices[0].CustomInfo[AWSNodeType].(string); ok {
-		AWSNodetype = nodeType
-	}
-	if strings.Contains(AWSNodetype, "inf") || strings.Contains(AWSNodetype, "Inf") {
-		//Deal with ring
-		start := 0
-		for start < len(devices) {
-			res := continuousDeviceAvailable(devices, start, count)
-			if len(res) > 0 {
-				return res
-			}
-			start += 1
-		}
-		return []int{}
-	}
-	switch count {
-	case 1, 4, 8, 16:
-		{
-			start := 0
-			for start < len(devices) {
-				res := continuousDeviceAvailable(devices, start, count)
-				if len(res) > 0 {
-					return res
-				}
-				start += count
-			}
-			return []int{}
-		}
-	}
-	return []int{}
+	_ = "STUB: not implemented"
+	return nil
 }
 
+//Deal with ring
+
 func (neuron *AWSNeuronDevices) Fit(devices []*device.DeviceUsage, request device.ContainerDeviceRequest, pod *corev1.Pod, nodeinfo *device.NodeInfo, allocated *device.PodDevices) (bool, map[string]device.ContainerDevices, string) {
-	k := request
-	originReq := k.Nums
-	klog.InfoS("Allocating device for container request", "pod", klog.KObj(pod), "card request", k)
-	tmpDevs := make(map[string]device.ContainerDevices)
-	reason := make(map[string]int)
-	if k.Nums > 1 {
-		alloc := graphSelect(devices, int(request.Nums))
-		if len(alloc) == 0 {
-			reason[common.NumaNotFit]++
-			klog.V(5).InfoS(common.NumaNotFit, "pod", klog.KObj(pod), "device", devices, "request nums", request.Nums, "numa")
-			return false, tmpDevs, common.GenReason(reason, len(reason))
-		}
-		for _, dev := range alloc {
-			for _, val := range devices {
-				if val.Index == uint(dev) {
-					customInfo := addCoreUsage(val.CustomInfo, int(k.Coresreq))
-					tmpDevs[request.Type] = append(tmpDevs[request.Type], device.ContainerDevice{
-						Idx:        int(val.Index),
-						UUID:       val.ID,
-						Type:       request.Type,
-						Usedmem:    val.Totalmem,
-						Usedcores:  val.Totalcore,
-						CustomInfo: customInfo,
-					})
-					break
-				}
-			}
-		}
-		return true, tmpDevs, ""
-	}
-	for i, v := range slices.Backward(devices) {
-		dev := v
-		_, ok := dev.CustomInfo[AWSUsageInfo]
-		if !ok {
-			dev.CustomInfo[AWSUsageInfo] = int(dev.Usedcores)
-		}
-		klog.V(4).InfoS("scoring pod", "pod", klog.KObj(pod), "device", dev.ID, "Memreq", k.Memreq, "MemPercentagereq", k.MemPercentagereq, "Coresreq", k.Coresreq, "Nums", k.Nums, "device index", i)
-
-		klog.V(3).InfoS("Type check", "device", dev.Type, "req", k.Type, "dev=", dev)
-		if !strings.Contains(dev.Type, k.Type) {
-			reason[common.CardTypeMismatch]++
-			continue
-		}
-
-		_, found, _ := neuron.checkType(k)
-		if !found {
-			reason[common.CardTypeMismatch]++
-			klog.V(5).InfoS(common.CardTypeMismatch, "pod", klog.KObj(pod), "device", dev.ID, dev.Type, k.Type)
-			continue
-		}
-		if !device.CheckUUID(pod.GetAnnotations(), dev.ID, AWSNeuronUseUUID, AWSNeuronNoUseUUID, neuron.CommonWord()) {
-			reason[common.CardUUIDMismatch]++
-			klog.V(5).InfoS(common.CardUUIDMismatch, "pod", klog.KObj(pod), "device", dev.ID, "current device info is:", *dev)
-			continue
-		}
-
-		if dev.Count <= dev.Used {
-			reason[common.CardTimeSlicingExhausted]++
-			klog.V(5).InfoS(common.CardTimeSlicingExhausted, "pod", klog.KObj(pod), "device", dev.ID, "count", dev.Count, "used", dev.Used)
-			continue
-		}
-
-		if countMaskAvailable(dev.Totalcore)-countMaskAvailable(dev.Usedcores) < k.Coresreq {
-			reason[common.CardInsufficientCore]++
-			klog.V(5).InfoS(common.CardInsufficientCore, "pod", klog.KObj(pod), "device", dev.ID, "device index", i, "device total core", dev.Totalcore, "device used core", dev.Usedcores, "request cores", k.Coresreq)
-			continue
-		}
-
-		klog.V(5).InfoS("find fit device", "pod", klog.KObj(pod), "device", dev.ID)
-		customInfo := addCoreUsage(dev.CustomInfo, int(k.Coresreq))
-		usedcores := 0
-		if countValue, ok := customInfo[AWSUsageInfo].(int); ok {
-			usedcores = countValue
-		}
-		tmpDevs[k.Type] = append(tmpDevs[k.Type], device.ContainerDevice{
-			Idx:        int(dev.Index),
-			UUID:       dev.ID,
-			Type:       k.Type,
-			Usedmem:    0,
-			Usedcores:  int32(usedcores),
-			CustomInfo: customInfo,
-		})
-		klog.V(4).InfoS("device allocate success", "pod", klog.KObj(pod), "allocate device", tmpDevs)
-		return true, tmpDevs, ""
-	}
-	klog.V(5).InfoS(common.AllocatedCardsInsufficientRequest, "pod", klog.KObj(pod), "request", originReq, "allocated", len(tmpDevs))
-	return false, tmpDevs, common.GenReason(reason, len(devices))
+	_ = "STUB: not implemented"
+	return false, nil, ""
 }

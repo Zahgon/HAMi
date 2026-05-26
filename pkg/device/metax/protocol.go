@@ -17,9 +17,6 @@ limitations under the License.
 package metax
 
 import (
-	"fmt"
-	"strings"
-
 	"github.com/Project-HAMi/HAMi/pkg/device"
 )
 
@@ -72,73 +69,16 @@ type ContainerMetaxSDevice struct {
 type ContainerMetaxSDevices []ContainerMetaxSDevice
 type PodMetaxSDevice []ContainerMetaxSDevices
 
-func (ni NodeMetaxSDeviceInfo) String() string {
-	var str strings.Builder
-	str.WriteString("\n")
+func (ni NodeMetaxSDeviceInfo) String() string { _ = "STUB: not implemented"; return "" }
 
-	for _, i := range ni {
-		fmt.Fprintf(&str, "MetaxSDeviceInfo[%s]: TotalDevCount=%d, TotalCompute=%d, TotalVRam=%d, Numa=%d, Healthy=%t, QosPolicy=%s, LinkZone=%d\n",
-			i.UUID, i.TotalDevCount, i.TotalCompute, i.TotalVRam, i.Numa, i.Healthy, i.QosPolicy, i.LinkZone)
-	}
-
-	return str.String()
-}
-
-func (sdev *PodMetaxSDevice) String() string {
-	var str strings.Builder
-	str.WriteString("\nPodMetaxSDevice:\n")
-
-	for ctrIdx, ctrDevices := range *sdev {
-		fmt.Fprintf(&str, "  container[%d]:\n", ctrIdx)
-		for _, device := range ctrDevices {
-			fmt.Fprintf(&str, "    SDevice[%s]: Compute=%d, VRam=%d\n",
-				device.UUID, device.Compute, device.VRam)
-		}
-	}
-
-	return str.String()
-}
+func (sdev *PodMetaxSDevice) String() string { _ = "STUB: not implemented"; return "" }
 
 func convertMetaxSDeviceToHAMIDevice(metaxSDevices []*MetaxSDeviceInfo) []*device.DeviceInfo {
-	hamiDevices := make([]*device.DeviceInfo, len(metaxSDevices))
-
-	for idx, sdevice := range metaxSDevices {
-		hamiDevices[idx] = &device.DeviceInfo{
-			ID:           sdevice.UUID,
-			Index:        uint(idx),
-			Count:        sdevice.TotalDevCount,
-			Devmem:       sdevice.TotalVRam,
-			Devcore:      sdevice.TotalCompute,
-			Type:         MetaxSGPUDevice,
-			Numa:         int(sdevice.Numa),
-			Mode:         "",
-			MIGTemplate:  []device.Geometry{},
-			Health:       sdevice.Healthy,
-			DeviceVendor: MetaxSGPUDevice,
-			CustomInfo: map[string]any{
-				"QosPolicy": sdevice.QosPolicy,
-				"Model":     sdevice.Model,
-				"LinkZone":  sdevice.LinkZone,
-			},
-		}
-	}
-
-	return hamiDevices
+	_ = "STUB: not implemented"
+	return nil
 }
 
 func convertHAMIPodDeviceToMetaxPodDevice(hamiPodDevices device.PodSingleDevice) PodMetaxSDevice {
-	metaxDevices := make(PodMetaxSDevice, len(hamiPodDevices))
-
-	for ctrIdx, ctrDevices := range hamiPodDevices {
-		metaxDevices[ctrIdx] = make(ContainerMetaxSDevices, len(ctrDevices))
-		for deviceIdx, device := range ctrDevices {
-			metaxDevices[ctrIdx][deviceIdx] = ContainerMetaxSDevice{
-				UUID:    device.UUID,
-				VRam:    device.Usedmem,
-				Compute: device.Usedcores,
-			}
-		}
-	}
-
-	return metaxDevices
+	_ = "STUB: not implemented"
+	return *new(PodMetaxSDevice)
 }

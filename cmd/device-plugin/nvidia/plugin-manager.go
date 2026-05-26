@@ -18,66 +18,18 @@ package main
 
 import (
 	"context"
-	"fmt"
 
-	"github.com/Project-HAMi/HAMi/pkg/device-plugin/nvidiadevice/nvinternal/cdi"
-	"github.com/Project-HAMi/HAMi/pkg/device-plugin/nvidiadevice/nvinternal/imex"
 	"github.com/Project-HAMi/HAMi/pkg/device-plugin/nvidiadevice/nvinternal/plugin"
 	"github.com/Project-HAMi/HAMi/pkg/device/nvidia"
 
 	"github.com/NVIDIA/go-nvlib/pkg/nvlib/device"
 	"github.com/NVIDIA/go-nvlib/pkg/nvlib/info"
 	"github.com/NVIDIA/go-nvml/pkg/nvml"
-	spec "github.com/NVIDIA/k8s-device-plugin/api/config/v1"
 )
 
 // GetPlugins returns a set of plugins for the specified configuration.
 func GetPlugins(ctx context.Context, infolib info.Interface, nvmllib nvml.Interface, devicelib device.Interface, config *nvidia.DeviceConfig) ([]plugin.Interface, error) {
+	_ = "STUB: not implemented"
 	// TODO: We could consider passing this as an argument since it should already be used to construct nvmllib.
-	driverRoot := root(*config.Flags.Plugin.ContainerDriverRoot)
-
-	deviceListStrategies, err := spec.NewDeviceListStrategies(*config.Flags.Plugin.DeviceListStrategy)
-	if err != nil {
-		return nil, fmt.Errorf("invalid device list strategy: %v", err)
-	}
-
-	imexChannels, err := imex.GetChannels(config.Config, driverRoot.getDevRoot())
-	if err != nil {
-		return nil, fmt.Errorf("error querying IMEX channels: %w", err)
-	}
-
-	cdiHandler, err := cdi.New(infolib, nvmllib, devicelib,
-		cdi.WithDeviceListStrategies(deviceListStrategies),
-		cdi.WithDriverRoot(string(driverRoot)),
-		cdi.WithDevRoot(driverRoot.getDevRoot()),
-		cdi.WithTargetDriverRoot(*config.Flags.NvidiaDriverRoot),
-		cdi.WithTargetDevRoot(*config.Flags.NvidiaDevRoot),
-		cdi.WithNvidiaCTKPath(*config.Flags.Plugin.NvidiaCTKPath),
-		cdi.WithDeviceIDStrategy(*config.Flags.Plugin.DeviceIDStrategy),
-		cdi.WithVendor("k8s.device-plugin.nvidia.com"),
-		cdi.WithGdrcopyEnabled(*config.Flags.GDRCopyEnabled),
-		cdi.WithGdsEnabled(*config.Flags.GDSEnabled),
-		cdi.WithMofedEnabled(*config.Flags.MOFEDEnabled),
-		cdi.WithImexChannels(imexChannels),
-	)
-	if err != nil {
-		return nil, fmt.Errorf("unable to create cdi handler: %v", err)
-	}
-
-	plugins, err := plugin.New(ctx, infolib, nvmllib, devicelib,
-		plugin.WithCDIHandler(cdiHandler),
-		plugin.WithConfig(config),
-		plugin.WithDeviceListStrategies(deviceListStrategies),
-		plugin.WithFailOnInitError(*config.Flags.FailOnInitError),
-		plugin.WithImexChannels(imexChannels),
-	)
-	if err != nil {
-		return nil, fmt.Errorf("unable to create plugins: %w", err)
-	}
-
-	if err := cdiHandler.CreateSpecFile(); err != nil {
-		return nil, fmt.Errorf("unable to create cdi spec file: %v", err)
-	}
-
-	return plugins, nil
+	return nil, nil
 }

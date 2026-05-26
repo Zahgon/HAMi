@@ -16,8 +16,6 @@ limitations under the License.
 
 package v1
 
-import "unsafe"
-
 const maxDevices = 16
 
 type deviceMemory struct {
@@ -80,120 +78,46 @@ type Spec struct {
 	sr *sharedRegionT
 }
 
-func (s Spec) DeviceMax() int {
-	return maxDevices
-}
+func (s Spec) DeviceMax() int { _ = "STUB: not implemented"; return 0 }
 
-func (s Spec) DeviceNum() int {
-	return int(s.sr.num)
-}
+func (s Spec) DeviceNum() int { _ = "STUB: not implemented"; return 0 }
 
-func (s Spec) DeviceMemoryContextSize(idx int) uint64 {
-	v := uint64(0)
-	for _, p := range s.sr.procs[:int(s.sr.procnum)] {
-		v += p.used[idx].contextSize
-	}
-	return v
-}
+func (s Spec) DeviceMemoryContextSize(idx int) uint64 { _ = "STUB: not implemented"; return 0 }
 
-func (s Spec) DeviceMemoryModuleSize(idx int) uint64 {
-	v := uint64(0)
-	for _, p := range s.sr.procs[:int(s.sr.procnum)] {
-		v += p.used[idx].moduleSize
-	}
-	return v
-}
+func (s Spec) DeviceMemoryModuleSize(idx int) uint64 { _ = "STUB: not implemented"; return 0 }
 
-func (s Spec) DeviceMemoryBufferSize(idx int) uint64 {
-	v := uint64(0)
-	for _, p := range s.sr.procs[:int(s.sr.procnum)] {
-		v += p.used[idx].bufferSize
-	}
-	return v
-}
+func (s Spec) DeviceMemoryBufferSize(idx int) uint64 { _ = "STUB: not implemented"; return 0 }
 
-func (s Spec) DeviceMemoryOffset(idx int) uint64 {
-	v := uint64(0)
-	for _, p := range s.sr.procs[:int(s.sr.procnum)] {
-		v += p.used[idx].offset
-	}
-	return v
-}
+func (s Spec) DeviceMemoryOffset(idx int) uint64 { _ = "STUB: not implemented"; return 0 }
 
-func (s Spec) DeviceMemoryTotal(idx int) uint64 {
-	v := uint64(0)
-	for _, p := range s.sr.procs[:int(s.sr.procnum)] {
-		v += p.used[idx].total
-	}
-	return v
-}
+func (s Spec) DeviceMemoryTotal(idx int) uint64 { _ = "STUB: not implemented"; return 0 }
 
-func (s Spec) DeviceSmUtil(idx int) uint64 {
-	v := uint64(0)
-	for _, p := range s.sr.procs[:int(s.sr.procnum)] {
-		v += p.deviceUtil[idx].smUtil
-	}
-	return v
-}
+func (s Spec) DeviceSmUtil(idx int) uint64 { _ = "STUB: not implemented"; return 0 }
 
-func (s Spec) SetDeviceSmLimit(l uint64) {
-	idx := uint64(0)
-	for idx < s.sr.num {
-		s.sr.smLimit[idx] = l
-		idx += 1
-	}
-}
+func (s Spec) SetDeviceSmLimit(l uint64) { _ = "STUB: not implemented"; return }
 
-func (s Spec) IsValidUUID(idx int) bool {
-	return s.sr.uuids[idx].uuid[0] != 0
-}
+func (s Spec) IsValidUUID(idx int) bool { _ = "STUB: not implemented"; return false }
 
-func (s Spec) DeviceUUID(idx int) string {
-	return string(s.sr.uuids[idx].uuid[:])
-}
+func (s Spec) DeviceUUID(idx int) string { _ = "STUB: not implemented"; return "" }
 
-func (s Spec) DeviceMemoryLimit(idx int) uint64 {
-	return s.sr.limit[idx]
-}
+func (s Spec) DeviceMemoryLimit(idx int) uint64 { _ = "STUB: not implemented"; return 0 }
 
-func (s Spec) SetDeviceMemoryLimit(l uint64) {
-	idx := uint64(0)
-	for idx < s.sr.num {
-		s.sr.limit[idx] = l
-		idx += 1
-	}
-}
+func (s Spec) SetDeviceMemoryLimit(l uint64) { _ = "STUB: not implemented"; return }
 
-func (s Spec) LastKernelTime() int64 {
-	return s.sr.lastKernelTime
-}
+func (s Spec) LastKernelTime() int64 { _ = "STUB: not implemented"; return 0 }
 
-func CastSpec(data []byte) Spec {
-	return Spec{
-		sr: (*sharedRegionT)(unsafe.Pointer(&data[0])),
-	}
-}
+func CastSpec(data []byte) Spec { _ = "STUB: not implemented"; return *new(Spec) }
 
 //	func (s *SharedRegionT) UsedMemory(idx int) (uint64, error) {
 //		return 0, nil
 //	}
 
-func (s Spec) GetPriority() int {
-	return int(s.sr.priority)
-}
+func (s Spec) GetPriority() int { _ = "STUB: not implemented"; return 0 }
 
-func (s Spec) GetRecentKernel() int32 {
-	return s.sr.recentKernel
-}
+func (s Spec) GetRecentKernel() int32 { _ = "STUB: not implemented"; return 0 }
 
-func (s Spec) SetRecentKernel(v int32) {
-	s.sr.recentKernel = v
-}
+func (s Spec) SetRecentKernel(v int32) { _ = "STUB: not implemented"; return }
 
-func (s Spec) GetUtilizationSwitch() int32 {
-	return s.sr.utilizationSwitch
-}
+func (s Spec) GetUtilizationSwitch() int32 { _ = "STUB: not implemented"; return 0 }
 
-func (s Spec) SetUtilizationSwitch(v int32) {
-	s.sr.utilizationSwitch = v
-}
+func (s Spec) SetUtilizationSwitch(v int32) { _ = "STUB: not implemented"; return }

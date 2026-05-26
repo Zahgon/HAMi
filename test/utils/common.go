@@ -18,17 +18,8 @@ package utils
 
 import (
 	"flag"
-	"fmt"
-	"math/rand"
-	"os"
-	"os/exec"
-	"path/filepath"
-	"strconv"
-	"time"
 
 	"k8s.io/client-go/kubernetes"
-	"k8s.io/client-go/tools/clientcmd"
-	"k8s.io/klog/v2"
 )
 
 var kubeConfig string
@@ -38,69 +29,23 @@ func init() {
 }
 
 // resolveKubeConfigPath picks kubeconfig in order: --kubeconfig flag, KUBE_CONF, ~/.kube/config.
-func resolveKubeConfigPath() string {
-	if kubeConfig != "" {
-		return validateKubeConfigPath(kubeConfig)
-	}
-	if configPath := os.Getenv("KUBE_CONF"); configPath != "" {
-		kubeConfig = validateKubeConfigPath(configPath)
-		return kubeConfig
-	}
-	home, err := os.UserHomeDir()
-	if err == nil {
-		defaultPath := filepath.Join(home, ".kube", "config")
-		if _, err := os.Stat(defaultPath); err == nil {
-			kubeConfig = defaultPath
-			return kubeConfig
-		}
-	}
-	klog.Fatalf("kubeconfig not set: pass --kubeconfig, set KUBE_CONF, or place config at ~/.kube/config")
-	return ""
-}
+func resolveKubeConfigPath() string { _ = "STUB: not implemented"; return "" }
 
-func validateKubeConfigPath(configPath string) string {
-	if _, err := os.Stat(configPath); os.IsNotExist(err) {
-		klog.Fatalf("Kubeconfig file does not exist at path: %s", configPath)
-	}
-	return configPath
-}
+func validateKubeConfigPath(configPath string) string { _ = "STUB: not implemented"; return "" }
 
-func DefaultKubeConfigPath() string {
-	return resolveKubeConfigPath()
-}
+func DefaultKubeConfigPath() string { _ = "STUB: not implemented"; return "" }
 
-func GetClientSet() *kubernetes.Clientset {
-	config, err := clientcmd.BuildConfigFromFlags("", resolveKubeConfigPath())
-	if err != nil {
-		klog.Fatalf("Failed to load kubeConfig: %v", err)
-	}
+func GetClientSet() *kubernetes.Clientset { _ = "STUB: not implemented"; return nil }
 
-	clientSet, err := kubernetes.NewForConfig(config)
-	if err != nil {
-		klog.Fatalf("Failed to create Kubernetes client: %v", err)
-	}
-	return clientSet
-}
-
-func GetRandom() string {
-	r := rand.New(rand.NewSource(time.Now().UnixNano()))
-	random := strconv.Itoa(r.Intn(9999))
-	return random
-}
+func GetRandom() string { _ = "STUB: not implemented"; return "" }
 
 // KubectlExecInPod executes a shell command in a specified Pod using kubectl exec.
 func KubectlExecInPod(namespace, podName, command string) ([]byte, error) {
+	_ = "STUB: not implemented"
 	// Wait for the container to stabilize
-	time.Sleep(30 * time.Second)
-
-	// Build the kubectl exec command
-	cmd := exec.Command("kubectl", "exec", "-n", namespace, podName, "--", "/bin/bash", "-c", command)
-
-	// Capture the command output (both stdout and stderr)
-	output, err := cmd.CombinedOutput()
-	if err != nil {
-		return output, fmt.Errorf("failed to execute kubectl command: %w. Output: %s", err, output)
-	}
-
-	return output, nil
+	return nil, nil
 }
+
+// Build the kubectl exec command
+
+// Capture the command output (both stdout and stderr)

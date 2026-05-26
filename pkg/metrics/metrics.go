@@ -18,26 +18,11 @@ package metrics
 
 import (
 	"github.com/prometheus/client_golang/prometheus"
-
-	"github.com/Project-HAMi/HAMi/pkg/version"
 )
 
 // NewBuildInfoCollector returns a collector that exports metrics about current version
 // information.
 func NewBuildInfoCollector() prometheus.Collector {
-	return prometheus.NewGaugeFunc(
-		prometheus.GaugeOpts{
-			Name: "hami_build_info",
-			Help: "hami build metadata exposed as labels with a constant value of 1.",
-			ConstLabels: prometheus.Labels{
-				"version":    version.Version().Version,
-				"revision":   version.Version().Revision,
-				"build_date": version.Version().BuildDate,
-				"go_version": version.Version().GoVersion,
-				"compiler":   version.Version().Compiler,
-				"platform":   version.Version().Platform,
-			},
-		},
-		func() float64 { return 1 },
-	)
+	_ = "STUB: not implemented"
+	return *new(prometheus.Collector)
 }

@@ -17,15 +17,12 @@ limitations under the License.
 package e2e
 
 import (
-	"context"
 	"fmt"
-	"strings"
 	"time"
 
 	"github.com/onsi/ginkgo/v2"
 	"github.com/onsi/gomega"
 	corev1 "k8s.io/api/core/v1"
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
 
 	"github.com/Project-HAMi/HAMi/test/utils"
@@ -121,67 +118,30 @@ var _ = ginkgo.Describe("Pod E2E Tests", ginkgo.Ordered, func() {
 })
 
 func cleanupPod(pod *corev1.Pod, clientSet *kubernetes.Clientset) {
-	if podExists(pod.Namespace, pod.Name, clientSet) {
-		ginkgo.By("Deleting pod " + pod.Name + " in namespace " + pod.Namespace)
-		err := utils.DeletePod(clientSet, pod.Namespace, pod.Name)
-		gomega.Expect(err).NotTo(gomega.HaveOccurred())
-
-		ginkgo.By("Verifying pod " + pod.Name + " is deleted")
-		gomega.Eventually(func() bool {
-			return !podExists(pod.Namespace, pod.Name, clientSet)
-		}, 300*time.Second, 10*time.Second).Should(gomega.BeTrue())
-	}
+	_ = "STUB: not implemented"
+	return
 }
 
 func podExists(namespace, podName string, clientSet *kubernetes.Clientset) bool {
-	pod, err := clientSet.CoreV1().Pods(namespace).Get(context.TODO(), podName, metav1.GetOptions{})
-	return err == nil && pod != nil
+	_ = "STUB: not implemented"
+	return false
 }
 
 func createAndVerifyPod(pod *corev1.Pod, clientSet *kubernetes.Clientset) {
-	ginkgo.By("Creating pod " + pod.Name + " in namespace " + pod.Namespace)
-	createdPod, err := utils.CreatePod(clientSet, pod, pod.Namespace)
-	gomega.Expect(err).NotTo(gomega.HaveOccurred())
-	gomega.Expect(createdPod.Name).To(gomega.Equal(pod.Name), "Pod was not created successfully")
-
-	ginkgo.By("Verifying pod " + pod.Name + " is in running status")
-	err = utils.WaitForPodRunning(clientSet, pod.Namespace, pod.Name)
-	if err != nil {
-		p, _ := clientSet.CoreV1().Pods(pod.Namespace).Get(context.TODO(), pod.Name, metav1.GetOptions{})
-		fmt.Printf("Pod %s/%s status: %v\n", pod.Namespace, pod.Name, p.Status)
-		events, _ := clientSet.CoreV1().Events(pod.Namespace).List(context.TODO(), metav1.ListOptions{
-			FieldSelector: fmt.Sprintf("involvedObject.name=%s", pod.Name),
-		})
-		for _, event := range events.Items {
-			fmt.Printf("Event: %s - %s\n", event.Reason, event.Message)
-		}
-	}
-	gomega.Expect(err).NotTo(gomega.HaveOccurred())
+	_ = "STUB: not implemented"
+	return
 }
 
 func prepareOvercommitPod(pod *corev1.Pod, namespace string) *corev1.Pod {
-	pod.Name += utils.GetRandom()
-	pod.Namespace = namespace // Ensure the pod's namespace is correctly set
-
-	// Modify pod spec for overcommit scenario
-	pod.Spec.Containers = append(pod.Spec.Containers, pod.Spec.Containers[0])
-	pod.Spec.Containers = append(pod.Spec.Containers, pod.Spec.Containers[0])
-	pod.Spec.Containers[1].Name = pod.Spec.Containers[0].Name + utils.GetRandom()
-	pod.Spec.Containers[2].Name = pod.Spec.Containers[0].Name + utils.GetRandom()
-
-	return pod
+	_ = "STUB: not implemented"
+	return nil
 }
 
-func checkPodPendingDueToFiltering(clientSet *kubernetes.Clientset, pod *corev1.Pod) bool {
-	events, err := utils.GetPodEvents(clientSet, pod.Namespace, pod.Name)
-	gomega.Expect(err).NotTo(gomega.HaveOccurred())
+// Ensure the pod's namespace is correctly set
 
-	for _, event := range events {
-		fmt.Printf("Event: Reason=%s, Message=%s\n", event.Reason, event.Message)
-		if strings.Contains(event.Reason, utils.ErrReasonFilteringFailed) &&
-			strings.Contains(event.Message, utils.ErrMessageFilteringFailed) {
-			return true
-		}
-	}
+// Modify pod spec for overcommit scenario
+
+func checkPodPendingDueToFiltering(clientSet *kubernetes.Clientset, pod *corev1.Pod) bool {
+	_ = "STUB: not implemented"
 	return false
 }

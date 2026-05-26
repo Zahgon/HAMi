@@ -16,11 +16,6 @@ limitations under the License.
 
 package metax
 
-import (
-	"fmt"
-	"strings"
-)
-
 const DirectLinkScore = 10
 
 type LinkDevice struct {
@@ -28,43 +23,10 @@ type LinkDevice struct {
 	linkZone int32
 }
 
-func (from *LinkDevice) score(to *LinkDevice) int {
-	if from.uuid == to.uuid {
-		return 0
-	}
-
-	if from.linkZone == 0 || to.linkZone == 0 {
-		return 0
-	}
-
-	if from.linkZone == to.linkZone {
-		return DirectLinkScore
-	} else {
-		return 0
-	}
-}
+func (from *LinkDevice) score(to *LinkDevice) int { _ = "STUB: not implemented"; return 0 }
 
 type LinkDevices []*LinkDevice
 
-func (devs LinkDevices) Score() int {
-	score := 0
+func (devs LinkDevices) Score() int { _ = "STUB: not implemented"; return 0 }
 
-	for i := range devs {
-		for j := i + 1; j < len(devs); j++ {
-			score += devs[i].score(devs[j])
-		}
-	}
-
-	return score
-}
-
-func (devs LinkDevices) String() string {
-	var str strings.Builder
-	str.WriteString("[")
-	for _, dev := range devs {
-		fmt.Fprintf(&str, "%v", *dev)
-	}
-	str.WriteString("]")
-
-	return str.String()
-}
+func (devs LinkDevices) String() string { _ = "STUB: not implemented"; return "" }

@@ -17,16 +17,10 @@ limitations under the License.
 package utils
 
 import (
-	"context"
-	"fmt"
-	"time"
-
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/resource"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"k8s.io/apimachinery/pkg/util/wait"
 	"k8s.io/client-go/kubernetes"
-	"k8s.io/klog/v2"
 )
 
 var Pod = &corev1.Pod{
@@ -54,72 +48,36 @@ var Pod = &corev1.Pod{
 }
 
 func GetPods(clientSet *kubernetes.Clientset, namespace string) (*corev1.PodList, error) {
-	pods, err := clientSet.CoreV1().Pods(namespace).List(context.TODO(), metav1.ListOptions{})
-	if err != nil {
-		klog.Errorf("Failed to list Pods in namespace %s: %v", namespace, err)
-		return nil, err
-	}
-
-	return pods, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 func CreatePod(clientSet *kubernetes.Clientset, pod *corev1.Pod, namespace string) (*corev1.Pod, error) {
-	time.Sleep(15 * time.Second)
-	createdPod, err := clientSet.CoreV1().Pods(namespace).Create(context.TODO(), pod, metav1.CreateOptions{})
-	if err != nil {
-		klog.Errorf("Failed to create Pod %s in namespace %s: %v", pod.Name, namespace, err)
-		return nil, err
-	}
-
-	return createdPod, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 func DeletePod(clientSet *kubernetes.Clientset, namespace, podName string) error {
-	err := clientSet.CoreV1().Pods(namespace).Delete(context.TODO(), podName, metav1.DeleteOptions{})
-	if err != nil {
-		klog.Errorf("Failed to delete Pod %s in namespace %s: %v", podName, namespace, err)
-		return err
-	}
+	_ = "STUB: not implemented"
 	return nil
 }
 
 func WaitForPodRunning(clientSet kubernetes.Interface, namespace, podName string) error {
-	const (
-		checkInterval = 5 * time.Second // Interval for checking Pod status
-		timeout       = 5 * time.Minute // Increased timeout for GPU Pods
-	)
-
-	return wait.PollUntilContextTimeout(context.TODO(), checkInterval, timeout, true, func(context.Context) (bool, error) {
-		// Fetch the Pod object from the Kubernetes API
-		pod, err := clientSet.CoreV1().Pods(namespace).Get(context.TODO(), podName, metav1.GetOptions{})
-		if err != nil {
-			return false, fmt.Errorf("failed to get pod %s/%s: %v", namespace, podName, err)
-		}
-
-		// Print Pod status for debugging
-		fmt.Printf("Pod %s/%s status: %s\n", namespace, podName, pod.Status.Phase)
-
-		// Check if the Pod is in the Running state
-		if pod.Status.Phase == corev1.PodRunning {
-			return true, nil
-		}
-
-		// Check if the Pod is in a Failed or Unknown state
-		if pod.Status.Phase == corev1.PodFailed || pod.Status.Phase == corev1.PodUnknown {
-			return false, fmt.Errorf("pod %s/%s is in failed or unknown state: %s", namespace, podName, pod.Status.Phase)
-		}
-
-		// Print Pod events for debugging
-		events, err := clientSet.CoreV1().Events(namespace).List(context.TODO(), metav1.ListOptions{
-			FieldSelector: fmt.Sprintf("involvedObject.name=%s", podName),
-		})
-		if err == nil {
-			for _, event := range events.Items {
-				fmt.Printf("Event: %s - %s\n", event.Reason, event.Message)
-			}
-		}
-
-		// If the Pod is not in Running, Failed, or Unknown state, continue waiting
-		return false, nil
-	})
+	_ = "STUB: not implemented"
+	return nil
 }
+
+// Interval for checking Pod status
+// Increased timeout for GPU Pods
+
+// Fetch the Pod object from the Kubernetes API
+
+// Print Pod status for debugging
+
+// Check if the Pod is in the Running state
+
+// Check if the Pod is in a Failed or Unknown state
+
+// Print Pod events for debugging
+
+// If the Pod is not in Running, Failed, or Unknown state, continue waiting

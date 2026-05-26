@@ -18,23 +18,11 @@ package main
 
 import (
 	"context"
-	"errors"
-	"fmt"
-	"net/http"
-	"os"
-	"os/signal"
-	"sync"
-	"syscall"
 
-	"github.com/Project-HAMi/HAMi/pkg/device-plugin/nvidiadevice/nvinternal/plugin"
-	versionmetrics "github.com/Project-HAMi/HAMi/pkg/metrics"
 	"github.com/Project-HAMi/HAMi/pkg/monitor/nvidia"
 	"github.com/Project-HAMi/HAMi/pkg/util"
 	"github.com/Project-HAMi/HAMi/pkg/util/flag"
 	"github.com/Project-HAMi/HAMi/pkg/version"
-
-	"github.com/prometheus/client_golang/prometheus"
-	"github.com/prometheus/client_golang/prometheus/promhttp"
 
 	"github.com/spf13/cobra"
 	"k8s.io/klog/v2"
@@ -62,117 +50,44 @@ func init() {
 	rootCmd.AddCommand(version.VersionCmd)
 }
 
-func start() error {
-	if err := ValidateEnvVars(); err != nil {
-		return fmt.Errorf("failed to validate environment variables: %v", err)
-	}
+func start() error { _ = "STUB: not implemented"; return nil }
 
-	containerLister, err := nvidia.NewContainerLister()
-	if err != nil {
-		return fmt.Errorf("failed to create container lister: %v", err)
-	}
+// Explicitly initialize
 
-	cgroupDriver = 0 // Explicitly initialize
+// Prepare the lock file sub directory.Due to the sequence of startup processes, both the device plugin
+// and the vGPU monitor should attempt to create this directory by default to ensure its creation.
 
-	ctx, cancel := context.WithCancel(context.Background())
-	defer cancel()
+// Start the metrics service
 
-	// Prepare the lock file sub directory.Due to the sequence of startup processes, both the device plugin
-	// and the vGPU monitor should attempt to create this directory by default to ensure its creation.
-	err = plugin.CreateMigApplyLockDir()
-	if err != nil {
-		return fmt.Errorf("failed to create MIG apply lock directory: %v", err)
-	}
+// Start the monitoring and feedback service
 
-	lockChannel, err := plugin.WatchLockFile()
-	if err != nil {
-		return fmt.Errorf("failed to watch lock file: %v", err)
-	}
+// if err is temporary closed, wait for lock file to be removed
 
-	var wg sync.WaitGroup
-	errCh := make(chan error, 2)
+// Capture system signals
 
-	// Start the metrics service
-	wg.Go(func() {
-		if err := initMetrics(ctx, containerLister); err != nil {
-			errCh <- err
-		}
-	})
-
-	// Start the monitoring and feedback service
-	wg.Go(func() {
-		for {
-			if err := watchAndFeedback(ctx, containerLister, lockChannel); err != nil {
-				// if err is temporary closed, wait for lock file to be removed
-				if errors.Is(err, errTemporaryClosed) {
-					klog.Info("MIG apply lock file detected, waiting for lock file to be removed")
-					<-lockChannel
-					klog.Info("MIG apply lock file has been removed, restarting watchAndFeedback")
-					continue
-				}
-				errCh <- err
-				return
-			}
-			return
-		}
-	})
-
-	// Capture system signals
-	signalCh := make(chan os.Signal, 1)
-	signal.Notify(signalCh, syscall.SIGINT, syscall.SIGTERM)
-
-	select {
-	case sig := <-signalCh:
-		klog.Infof("Received signal: %s", sig)
-		cancel()
-	case err := <-errCh:
-		klog.Errorf("Received error: %v", err)
-		cancel()
-	}
-
-	// Wait for all goroutines to complete
-	wg.Wait()
-	close(errCh)
-	return nil
-}
+// Wait for all goroutines to complete
 
 func initMetrics(ctx context.Context, containerLister *nvidia.ContainerLister) error {
-	klog.V(4).Info("Initializing metrics for vGPUmonitor")
-	reg := prometheus.NewRegistry()
-	//reg := prometheus.NewPedanticRegistry()
-
-	reg.MustRegister(versionmetrics.NewBuildInfoCollector())
-
-	// Construct cluster managers. In real code, we would assign them to
-	// variables to then do something with them.
-	NewClusterManager("vGPU", reg, containerLister, legacyMetrics)
-	//NewClusterManager("ca", reg)
-
-	// Uncomment to add the standard process and Go metrics to the custom registry.
-	//reg.MustRegister(
-	//	prometheus.NewProcessCollector(prometheus.ProcessCollectorOpts{}),
-	//	prometheus.NewGoCollector(),
-	//)
-
-	http.Handle("/metrics", promhttp.HandlerFor(reg, promhttp.HandlerOpts{}))
-	server := &http.Server{Addr: metricsBindAddress, Handler: nil}
-
-	// Starting the HTTP server in a goroutine
-	go func() {
-		if err := server.ListenAndServe(); err != nil && err != http.ErrServerClosed {
-			klog.Errorf("Failed to serve metrics: %v", err)
-		}
-	}()
-
-	// Graceful shutdown on context cancellation
-	<-ctx.Done()
-	klog.V(4).Info("Shutting down metrics server")
-	if err := server.Shutdown(context.Background()); err != nil {
-		return err
-	}
-
+	_ = "STUB: not implemented"
 	return nil
 }
+
+//reg := prometheus.NewPedanticRegistry()
+
+// Construct cluster managers. In real code, we would assign them to
+// variables to then do something with them.
+
+//NewClusterManager("ca", reg)
+
+// Uncomment to add the standard process and Go metrics to the custom registry.
+//reg.MustRegister(
+//	prometheus.NewProcessCollector(prometheus.ProcessCollectorOpts{}),
+//	prometheus.NewGoCollector(),
+//)
+
+// Starting the HTTP server in a goroutine
+
+// Graceful shutdown on context cancellation
 
 func main() {
 	if err := rootCmd.Execute(); err != nil {

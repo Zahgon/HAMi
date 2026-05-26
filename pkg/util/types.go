@@ -80,9 +80,7 @@ const (
 	GPUSchedulerPolicyAnnotationKey = "hami.io/gpu-scheduler-policy"
 )
 
-func (s SchedulerPolicyName) String() string {
-	return string(s)
-}
+func (s SchedulerPolicyName) String() string { _ = "STUB: not implemented"; return "" }
 
 const (
 	Weight int = 10

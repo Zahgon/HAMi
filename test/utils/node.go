@@ -17,78 +17,33 @@ limitations under the License.
 package utils
 
 import (
-	"context"
-	"fmt"
-	"time"
-
 	v1 "k8s.io/api/core/v1"
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
-	"k8s.io/klog/v2"
 )
 
 // GetGPUNode returns the name of the first node that has nvidia.com/gpu capacity.
 // It falls back to the first node in the cluster if no GPU node is found.
 func GetGPUNode(clientSet *kubernetes.Clientset) (string, error) {
-	nodes, err := clientSet.CoreV1().Nodes().List(context.TODO(), metav1.ListOptions{})
-	if err != nil {
-		return "", err
-	}
-	for _, node := range nodes.Items {
-		if _, ok := node.Status.Capacity["nvidia.com/gpu"]; ok {
-			return node.Name, nil
-		}
-	}
-	if len(nodes.Items) > 0 {
-		return nodes.Items[0].Name, nil
-	}
-	return "", fmt.Errorf("no nodes found in the cluster")
+	_ = "STUB: not implemented"
+	return "", nil
 }
 
 func GetNodes(clientSet *kubernetes.Clientset) (*v1.NodeList, error) {
-	nodes, err := clientSet.CoreV1().Nodes().List(context.TODO(), metav1.ListOptions{})
-	if err != nil {
-		klog.Errorf("Failed to get nodes: %v", err)
-		return nil, err
-	}
-
-	return nodes, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 func UpdateNode(clientSet *kubernetes.Clientset, node *v1.Node) (*v1.Node, error) {
-	updatedNode, err := clientSet.CoreV1().Nodes().Update(context.TODO(), node, metav1.UpdateOptions{})
-	if err != nil {
-		klog.Errorf("Failed to update node %s: %v", node.Name, err)
-		return nil, err
-	}
-
-	time.Sleep(time.Second * 30)
-	return updatedNode, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 func AddNodeLabel(clientSet *kubernetes.Clientset, nodeName, labelKey, labelValue string) (*v1.Node, error) {
-	node, err := clientSet.CoreV1().Nodes().Get(context.TODO(), nodeName, metav1.GetOptions{})
-	if err != nil {
-		return nil, err
-	}
-
-	if node.Labels == nil {
-		node.Labels = make(map[string]string)
-	}
-	node.Labels[labelKey] = labelValue
-
-	return UpdateNode(clientSet, node)
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 func RemoveNodeLabel(clientSet *kubernetes.Clientset, nodeName, labelKey string) (*v1.Node, error) {
-	node, err := clientSet.CoreV1().Nodes().Get(context.TODO(), nodeName, metav1.GetOptions{})
-	if err != nil {
-		return nil, err
-	}
-
-	if node.Labels != nil {
-		delete(node.Labels, labelKey)
-	}
-
-	return UpdateNode(clientSet, node)
+	_ = "STUB: not implemented"
+	return nil, nil
 }

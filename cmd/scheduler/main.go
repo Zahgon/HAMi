@@ -17,27 +17,18 @@ limitations under the License.
 package main
 
 import (
-	"context"
-	"crypto/tls"
-	"fmt"
-	"net/http"
-	"net/http/pprof"
-	"os"
 	"time"
 
 	"github.com/julienschmidt/httprouter"
 	"github.com/spf13/cobra"
 	klog "k8s.io/klog/v2"
-	"sigs.k8s.io/controller-runtime/pkg/certwatcher"
 
 	"github.com/Project-HAMi/HAMi/pkg/device"
 	"github.com/Project-HAMi/HAMi/pkg/scheduler"
 	"github.com/Project-HAMi/HAMi/pkg/scheduler/config"
-	"github.com/Project-HAMi/HAMi/pkg/scheduler/routes"
 	"github.com/Project-HAMi/HAMi/pkg/util"
 	"github.com/Project-HAMi/HAMi/pkg/util/client"
 	"github.com/Project-HAMi/HAMi/pkg/util/flag"
-	"github.com/Project-HAMi/HAMi/pkg/util/nodelock"
 	"github.com/Project-HAMi/HAMi/pkg/version"
 )
 
@@ -93,105 +84,17 @@ func init() {
 }
 
 // injectProfilingRoute injects pprof routes into the router.
-func injectProfilingRoute(router *httprouter.Router) {
-	router.GET("/debug/pprof/*suffix", func(w http.ResponseWriter, r *http.Request, params httprouter.Params) {
-		suffix := params.ByName("suffix")
-		switch suffix {
-		case "/cmdline":
-			pprof.Cmdline(w, r)
-		case "/profile":
-			pprof.Profile(w, r)
-		case "/symbol":
-			pprof.Symbol(w, r)
-		case "/trace":
-			pprof.Trace(w, r)
-		default:
-			pprof.Index(w, r)
-		}
-	})
-}
+func injectProfilingRoute(router *httprouter.Router) { _ = "STUB: not implemented"; return }
 
 func start() error {
+	_ = "STUB: not implemented"
 	// Initialize node lock timeout from config
-	nodelock.NodeLockTimeout = config.NodeLockTimeout
-	klog.InfoS("Set node lock timeout", "timeout", nodelock.NodeLockTimeout)
-	client.InitGlobalClient(
-		client.WithBurst(config.Burst),
-		client.WithQPS(config.QPS),
-		client.WithTimeout(config.Timeout),
-	)
-
-	config.InitDevices()
-
-	var err error
-	config.HostName, err = os.Hostname()
-	if err != nil {
-		return fmt.Errorf("unable to get hostname: %v", err)
-	}
-	if config.HostName == "" {
-		return fmt.Errorf("empty hostname returned")
-	}
-
-	sher = scheduler.NewScheduler()
-	go sher.RegisterFromNodeAnnotations()
-	err = sher.Start()
-	if err != nil {
-		return err
-	}
-	defer sher.Stop()
-
-	// start monitor metrics
-	go initMetrics(config.MetricsBindAddress, legacyMetrics)
-
-	// start http server
-	router := httprouter.New()
-	router.POST("/filter", routes.PredicateRoute(sher))
-	router.POST("/bind", routes.Bind(sher))
-	router.POST("/webhook", routes.WebHookRoute())
-	router.GET("/healthz", routes.HealthzRoute())
-	router.GET("/readyz", routes.ReadyzRoute(sher))
-	klog.Info("listen on ", config.HTTPBind)
-
-	if enableProfiling {
-		injectProfilingRoute(router)
-		klog.Infof("Profiling enabled, visit %s/debug/pprof/ to view profiles", config.HTTPBind)
-	}
-
-	if len(tlsCertFile) == 0 || len(tlsKeyFile) == 0 {
-		if err := http.ListenAndServe(config.HTTPBind, router); err != nil {
-			return fmt.Errorf("listen and Serve error, %v", err)
-		}
-	} else {
-		certWatcher, err := certwatcher.New(tlsCertFile, tlsKeyFile)
-		if err != nil {
-			return fmt.Errorf("failed to create cert watcher: %w", err)
-		}
-
-		tlsCfg := &tls.Config{
-			GetCertificate: certWatcher.GetCertificate,
-		}
-		ctx, cancel := context.WithCancel(context.Background())
-		defer cancel()
-		go func() {
-			if err := certWatcher.Start(ctx); err != nil && err != context.Canceled {
-				klog.ErrorS(err, "cert watcher error")
-			}
-		}()
-
-		addr := config.HTTPBind
-		handler := router
-		server := &http.Server{
-			Addr:      addr,
-			Handler:   handler,
-			TLSConfig: tlsCfg,
-		}
-		klog.InfoS("Starting HTTPS server", "address", addr)
-		if err := server.ListenAndServeTLS("", ""); err != nil {
-			return fmt.Errorf("HTTPS server error: %w", err)
-		}
-	}
 	return nil
 }
+
+// start monitor metrics
+
+// start http server
 
 func main() {
 	if err := rootCmd.Execute(); err != nil {
